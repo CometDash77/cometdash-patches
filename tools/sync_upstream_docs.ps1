@@ -4,14 +4,10 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-function Get-SnapshotDigest([string]$root) {
-    $lines = Get-ChildItem -LiteralPath $root -Recurse -File |
-        Sort-Object FullName |
-        ForEach-Object {
-            $relative = [System.IO.Path]::GetRelativePath($root, $_.FullName).Replace('\', '/')
-            $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash.ToLowerInvariant()
-            "$relative`t$hash"
-        }
+function Get-BlobMapDigest($blobs) {
+    $lines = $blobs.GetEnumerator() |
+        Sort-Object Name |
+        ForEach-Object { "$($_.Name)`t$($_.Value)" }
     $payload = ($lines -join "`n") + "`n"
     $sha = [System.Security.Cryptography.SHA256]::Create()
     try {
@@ -24,19 +20,30 @@ function Get-SnapshotDigest([string]$root) {
     }
 }
 
-function Assert-SnapshotMatchesGitTree($source, [string]$repoRoot) {
-    $treeApi = "https://api.github.com/repos/MorpheApp/morphe-documentation/git/trees/$($source.revision)?recursive=1"
+function Get-RemoteBlobs([string]$revision) {
+    $commitApi = "https://api.github.com/repos/MorpheApp/morphe-documentation/commits/$revision"
+    $commit = Invoke-RestMethod -Uri $commitApi -Headers @{ Accept = "application/vnd.github+json" }
+    $treeSha = [string]$commit.commit.tree.sha
+    if ([string]::IsNullOrWhiteSpace($treeSha)) {
+        throw "Could not resolve the documentation tree for revision $revision."
+    }
+
+    $treeApi = "https://api.github.com/repos/MorpheApp/morphe-documentation/git/trees/${treeSha}?recursive=1"
     $tree = Invoke-RestMethod -Uri $treeApi -Headers @{ Accept = "application/vnd.github+json" }
     if ($tree.truncated) {
         throw "GitHub returned a truncated documentation tree."
     }
-
-    $remoteBlobs = @{}
+    $blobs = @{}
     foreach ($item in $tree.tree) {
         if ($item.type -eq "blob") {
-            $remoteBlobs[[string]$item.path] = [string]$item.sha
+            $blobs[[string]$item.path] = [string]$item.sha
         }
     }
+    return $blobs
+}
+
+function Assert-SnapshotMatchesGitTree($source, [string]$repoRoot) {
+    $remoteBlobs = Get-RemoteBlobs ([string]$source.revision)
 
     $snapshotPath = ([string]$source.snapshotPath).Replace('\', '/')
     $status = @(git -C $repoRoot status --porcelain --untracked-files=all -- $snapshotPath)
@@ -74,6 +81,9 @@ function Assert-SnapshotMatchesGitTree($source, [string]$repoRoot) {
         if ($localBlobs[$path] -ne $remoteBlobs[$path]) {
             throw "Snapshot blob differs from revision $($source.revision): $path"
         }
+    }
+    if ((Get-BlobMapDigest $localBlobs) -ne [string]$source.snapshotDigest) {
+        throw "Snapshot index digest does not match manifest: $($source.name)"
     }
 }
 
@@ -131,7 +141,7 @@ try {
 
     $source.revision = $latestRevision
     $source.commitDate = [string]$latest.commit.committer.date
-    $source.snapshotDigest = Get-SnapshotDigest $target
+    $source.snapshotDigest = Get-BlobMapDigest (Get-RemoteBlobs $latestRevision)
     $source.syncedAt = (Get-Date).ToString("o")
     $manifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $manifestPath -Encoding utf8
 

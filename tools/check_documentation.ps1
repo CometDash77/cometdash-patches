@@ -48,12 +48,12 @@ $contextFiles = Get-ChildItem -LiteralPath (Join-Path $repoRoot "docs\contexts")
 foreach ($contextFile in $contextFiles) {
     $contextContent = Get-Content -Raw -LiteralPath $contextFile.FullName
     $relativeContext = [System.IO.Path]::GetRelativePath($repoRoot, $contextFile.FullName)
-    $secondaryHeadings = [regex]::Matches($contextContent, '(?m)^## (.+)$')
-    if ($secondaryHeadings.Count -ne 1 -or $secondaryHeadings[0].Groups[1].Value -ne "Language") {
+    $secondaryHeadings = [regex]::Matches($contextContent, '(?m)^## (.+?)\r?$')
+    if ($secondaryHeadings.Count -ne 1 -or $secondaryHeadings[0].Groups[1].Value.Trim() -ne "Language") {
         Add-CheckError "CONTEXT file must contain only the Language section: $relativeContext"
     }
-    $termCount = [regex]::Matches($contextContent, '(?m)^\*\*[^*]+\*\*:$').Count
-    $avoidCount = [regex]::Matches($contextContent, '(?m)^_Avoid_: .+$').Count
+    $termCount = [regex]::Matches($contextContent, '(?m)^\*\*[^*]+\*\*:\r?$').Count
+    $avoidCount = [regex]::Matches($contextContent, '(?m)^_Avoid_: .+\r?$').Count
     if ($termCount -eq 0 -or $termCount -ne $avoidCount) {
         Add-CheckError "CONTEXT terms must each have one Avoid line: $relativeContext"
     }
@@ -128,14 +128,18 @@ foreach ($path in $tracked) {
 $manifest = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "docs\upstream\manifest.json") |
     ConvertFrom-Json
 
-function Get-SnapshotDigest([string]$root) {
-    $lines = Get-ChildItem -LiteralPath $root -Recurse -File |
-        Sort-Object FullName |
+function Get-SnapshotDigest([string]$repoRoot, [string]$snapshotPath) {
+    $prefix = $snapshotPath.Replace('\', '/').TrimEnd('/')
+    $lines = git -C $repoRoot ls-files -s -- $prefix |
         ForEach-Object {
-            $relative = [System.IO.Path]::GetRelativePath($root, $_.FullName).Replace('\', '/')
-            $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash.ToLowerInvariant()
-            "$relative`t$hash"
-        }
+            if ($_ -notmatch '^\d+\s+([0-9a-f]{40})\s+\d+\t(.+)$') {
+                throw "Unexpected git index record: $_"
+            }
+            $trackedPath = $Matches[2].Replace('\', '/')
+            $relative = $trackedPath.Substring($prefix.Length + 1)
+            "$relative`t$($Matches[1])"
+        } |
+        Sort-Object
     $payload = ($lines -join "`n") + "`n"
     $sha = [System.Security.Cryptography.SHA256]::Create()
     try {
@@ -158,7 +162,7 @@ foreach ($source in $manifest.sources) {
     }
     if ([string]::IsNullOrWhiteSpace([string]$source.snapshotDigest)) {
         Add-CheckError "Missing snapshot digest for upstream source: $($source.name)"
-    } elseif ((Get-SnapshotDigest $snapshot) -ne $source.snapshotDigest) {
+    } elseif ((Get-SnapshotDigest $repoRoot $source.snapshotPath) -ne $source.snapshotDigest) {
         Add-CheckError "Snapshot content does not match manifest digest: $($source.name)"
     }
 }
