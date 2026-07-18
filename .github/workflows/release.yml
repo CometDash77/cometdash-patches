@@ -3,9 +3,12 @@ name: Release
 on:
   workflow_dispatch:
   push:
+    branches:
+      - dev
 
 jobs:
   release:
+    if: github.ref == 'refs/heads/dev'
     name: Release
     permissions:
       contents: write
@@ -35,7 +38,7 @@ jobs:
         run: npm install
 
       # Semantic release runs its own Gradle build command.
-      # Only dev and main branch will generate a release as specified by .releaserc
+      # Stable publication is blocked; only dev can generate a pre-release.
       - name: Release
         uses: cycjimmy/semantic-release-action@v6
         id: release
@@ -46,11 +49,11 @@ jobs:
         if: steps.release.outputs.new_release_published == 'true'
         uses: actions/attest-build-provenance@v4
         with:
-          subject-name: 'Morphe Patches ${{ steps.release.outputs.new_release_git_tag }}'
+          subject-name: 'CometDash Patches ${{ steps.release.outputs.new_release_git_tag }}'
           subject-path: patches/build/libs/patches-*.mpp
 
-      # Always verify compilation when semantic-release did not publish a release.
-      # This covers non-main/dev branches, chore commits, docs commits, etc.
+      # Always verify compilation when a dev commit does not publish a pre-release.
+      # This covers chore and docs commits.
       - name: Verify project compiles
         if: steps.release.outputs.new_release_published != 'true'
         env:

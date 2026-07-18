@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "name": "morphe-documentation",
+      "repository": "https://github.com/MorpheApp/morphe-documentation",
+      "branch": "main",
+      "revision": "37b5eeb9c690ea169937fc2bac197bdcdb269014",
+      "commitDate": "2026-07-14T07:17:08Z",
+      "snapshotPath": "docs/upstream/morphe-documentation",
+      "snapshotDigest": "3c376d683d7b849fc4a0bbbb4ebd57fc9a0ca4253a15ec9072e504b0f6f8069a",
+      "syncedAt": "2026-07-18T20:53:19+08:00"
+    }
+  ]
+}
