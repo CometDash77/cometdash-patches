@@ -107,7 +107,13 @@ for ($i = 0; $i -lt $adrFiles.Count; $i++) {
     }
 }
 
-$mainPaths = git -C $repoRoot ls-tree -r --name-only main
+$mainPaths = @(git -C $repoRoot ls-tree -r --name-only main 2>$null)
+$mainTreeExit = $LASTEXITCODE
+if ($mainTreeExit -ne 0) {
+    Add-CheckError "Could not inspect the main product tree (git ls-tree exited $mainTreeExit)."
+} elseif ($mainPaths.Count -eq 0) {
+    Add-CheckError "The main product tree is empty."
+}
 $mainAllowPatterns = @(
     '^\.github/',
     '^extensions/',
@@ -164,14 +170,24 @@ foreach ($sentinel in @(
     "decompiled/classes.smali",
     "nested/decompiled-output/classes.smali"
 )) {
-    git -C $repoRoot check-ignore --no-index -q -- $sentinel
-    if ($LASTEXITCODE -ne 0) {
+    $ignoreOutput = @(git -c core.excludesFile=NUL -C $repoRoot check-ignore --no-index -v -- $sentinel 2>$null)
+    $ignoreExit = $LASTEXITCODE
+    $ignoreMatch = if ($ignoreOutput.Count -eq 1) {
+        [regex]::Match($ignoreOutput[0], '^\.gitignore:\d+:(?<pattern>[^\t]+)\t')
+    }
+    if ($ignoreExit -ne 0) {
         Add-CheckError "Sensitive sentinel is not ignored: $sentinel"
+    } elseif ($null -eq $ignoreMatch -or -not $ignoreMatch.Success -or $ignoreMatch.Groups['pattern'].Value.StartsWith('!')) {
+        Add-CheckError "Sensitive sentinel must be ignored by a non-negated root .gitignore pattern: $sentinel"
     }
 }
-git -C $repoRoot check-ignore --no-index -q -- ".env.example"
-if ($LASTEXITCODE -eq 0) {
-    Add-CheckError ".env.example must remain unignored."
+$exampleOutput = @(git -c core.excludesFile=NUL -C $repoRoot check-ignore --no-index -v -- ".env.example" 2>$null)
+$exampleExit = $LASTEXITCODE
+$exampleMatch = if ($exampleOutput.Count -eq 1) {
+    [regex]::Match($exampleOutput[0], '^\.gitignore:\d+:(?<pattern>[^\t]+)\t')
+}
+if ($exampleExit -ne 0 -or $null -eq $exampleMatch -or -not $exampleMatch.Success -or $exampleMatch.Groups['pattern'].Value -cne '!.env.example') {
+    Add-CheckError ".env.example must be explicitly unignored by root .gitignore pattern !.env.example."
 }
 
 $manifest = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "docs\upstream\manifest.json") |
