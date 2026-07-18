@@ -72,7 +72,8 @@
 - [ ] Reviewer 输出 `docs/research/2026-07-18-documentation-gate-review.md`，包含 baseline SHA、输入、命令、findings 和 verdict。
 - [ ] Blocking finding 出现时停止并制定 finding-specific 微型计划。
 - [ ] PASS 后由 Reviewer 提交审查报告并交用户授权 Phase 1。
-- [ ] 在 ledger 记录用户授权及 review commit。
+- [ ] 用户授权 Phase 1 后，在 ledger 记录授权及 review commit。
+- [ ] 运行文档检查与 freshness check，提交为 `chore: authorize phase one`。
 
 ### Task 6：冻结 Morphe 官方仓库清单
 

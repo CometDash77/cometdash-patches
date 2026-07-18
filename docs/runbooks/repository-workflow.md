@@ -20,14 +20,14 @@ An allowlisted path is not automatically safe: generated metadata, URLs and user
 ## Development commits
 
 1. Work only on `dev`.
-2. Use `feat:`, `fix:` and `chore:` semantic commit types expected by the template.
+2. Use `feat:`, `fix:` and `chore:` semantic commit types expected by the template. Documentation-only commits that do not request a release may use `docs:`.
 3. Do not manually edit generated release files unless the release workflow explicitly requires it.
 4. Run applicable automated gates and request independent review.
 5. Use Morphe Manager's pre-release Source option for candidate testing.
 
 ## Stable promotion
 
-Stable promotion is currently **blocked**. Do not merge `dev` wholesale into `main`: that violates the branch content boundary, and the template's pinned [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc) configures a semantic-release backmerge from `main` to `dev` that can remove development assets from `dev`.
+Stable promotion is currently **blocked**. Do not merge `dev` wholesale into `main`: that violates the branch content boundary. The template's pinned [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc) configures a semantic-release backmerge from `main` to `dev` with `clearWorkspace`; it imports product-only `main` history into `dev` and can propagate deletions already committed on `main`, so it cannot serve as the projection mechanism.
 
 Before the first stable release, implement and review a projection workflow that:
 
