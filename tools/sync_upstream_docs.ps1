@@ -4,6 +4,26 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Get-GitHubHeaders {
+    $headers = @{ Accept = "application/vnd.github+json" }
+    $token = if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
+        $env:GITHUB_TOKEN
+    } elseif (-not [string]::IsNullOrWhiteSpace($env:GH_TOKEN)) {
+        $env:GH_TOKEN
+    } else {
+        $gh = Get-Command gh -ErrorAction SilentlyContinue
+        if ($null -ne $gh) {
+            & $gh.Source auth token 2>$null | Select-Object -First 1
+        }
+    }
+    if (-not [string]::IsNullOrWhiteSpace([string]$token)) {
+        $headers.Authorization = "Bearer $token"
+    }
+    return $headers
+}
+
+$githubHeaders = Get-GitHubHeaders
+
 function Get-BlobMapDigest($blobs) {
     $lines = $blobs.GetEnumerator() |
         Sort-Object Name |
@@ -22,14 +42,14 @@ function Get-BlobMapDigest($blobs) {
 
 function Get-RemoteBlobs([string]$revision) {
     $commitApi = "https://api.github.com/repos/MorpheApp/morphe-documentation/commits/$revision"
-    $commit = Invoke-RestMethod -Uri $commitApi -Headers @{ Accept = "application/vnd.github+json" }
+    $commit = Invoke-RestMethod -Uri $commitApi -Headers $githubHeaders
     $treeSha = [string]$commit.commit.tree.sha
     if ([string]::IsNullOrWhiteSpace($treeSha)) {
         throw "Could not resolve the documentation tree for revision $revision."
     }
 
     $treeApi = "https://api.github.com/repos/MorpheApp/morphe-documentation/git/trees/${treeSha}?recursive=1"
-    $tree = Invoke-RestMethod -Uri $treeApi -Headers @{ Accept = "application/vnd.github+json" }
+    $tree = Invoke-RestMethod -Uri $treeApi -Headers $githubHeaders
     if ($tree.truncated) {
         throw "GitHub returned a truncated documentation tree."
     }
@@ -97,7 +117,7 @@ if ($null -eq $source) {
 }
 
 $commitApi = "https://api.github.com/repos/MorpheApp/morphe-documentation/commits/$($source.branch)"
-$latest = Invoke-RestMethod -Uri $commitApi -Headers @{ Accept = "application/vnd.github+json" }
+$latest = Invoke-RestMethod -Uri $commitApi -Headers $githubHeaders
 $latestRevision = [string]$latest.sha
 
 if ($Check) {
@@ -125,7 +145,7 @@ $expanded = Join-Path $tempRoot "expanded"
 try {
     New-Item -ItemType Directory -Path $expanded -Force | Out-Null
     $archiveUrl = "https://codeload.github.com/MorpheApp/morphe-documentation/zip/$latestRevision"
-    Invoke-WebRequest -Uri $archiveUrl -OutFile $archive
+    Invoke-WebRequest -Uri $archiveUrl -Headers $githubHeaders -OutFile $archive
     Expand-Archive -LiteralPath $archive -DestinationPath $expanded
 
     $snapshotRoot = Get-ChildItem -LiteralPath $expanded -Directory | Select-Object -First 1

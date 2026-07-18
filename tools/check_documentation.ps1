@@ -44,10 +44,24 @@ foreach ($navigationTarget in @(
     }
 }
 
+$linkPattern = [regex]'\[[^\]]*\]\(([^)]+)\)'
+$contextMapPath = Join-Path $repoRoot "CONTEXT-MAP.md"
+$mappedContexts = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+foreach ($match in $linkPattern.Matches((Get-Content -Raw -LiteralPath $contextMapPath))) {
+    $target = $match.Groups[1].Value.Trim()
+    if ($target -notmatch '^(https?://|mailto:|#)' -and $target -ne "") {
+        $pathPart = [System.Uri]::UnescapeDataString($target.Split('#')[0])
+        [void]$mappedContexts.Add([System.IO.Path]::GetFullPath((Join-Path $repoRoot $pathPart)))
+    }
+}
+
 $contextFiles = Get-ChildItem -LiteralPath (Join-Path $repoRoot "docs\contexts") -Recurse -Filter "CONTEXT.md" -File
 foreach ($contextFile in $contextFiles) {
     $contextContent = Get-Content -Raw -LiteralPath $contextFile.FullName
     $relativeContext = [System.IO.Path]::GetRelativePath($repoRoot, $contextFile.FullName)
+    if (-not $mappedContexts.Contains($contextFile.FullName)) {
+        Add-CheckError "CONTEXT-MAP.md is missing context: $relativeContext"
+    }
     $secondaryHeadings = [regex]::Matches($contextContent, '(?m)^## (.+?)\r?$')
     if ($secondaryHeadings.Count -ne 1 -or $secondaryHeadings[0].Groups[1].Value.Trim() -ne "Language") {
         Add-CheckError "CONTEXT file must contain only the Language section: $relativeContext"
@@ -64,7 +78,6 @@ foreach ($contextFile in $contextFiles) {
 
 $markdownFiles = Get-ChildItem -LiteralPath $repoRoot -Recurse -Filter "*.md" -File |
     Where-Object { $_.FullName -notmatch "[\\/]build[\\/]" }
-$linkPattern = [regex]'\[[^\]]*\]\(([^)]+)\)'
 
 foreach ($file in $markdownFiles) {
     $content = Get-Content -Raw -LiteralPath $file.FullName
@@ -95,24 +108,41 @@ for ($i = 0; $i -lt $adrFiles.Count; $i++) {
 }
 
 $mainPaths = git -C $repoRoot ls-tree -r --name-only main
-$mainDenyPatterns = @(
-    '^AGENTS\.md$',
-    '^CONTEXT-MAP\.md$',
-    '^docs/',
-    '^tools/',
-    '^reasonix\.toml$'
+$mainAllowPatterns = @(
+    '^\.github/',
+    '^extensions/',
+    '^patches/',
+    '^gradle/',
+    '^\.editorconfig$',
+    '^\.gitattributes$',
+    '^\.gitignore$',
+    '^\.releaserc$',
+    '^gradlew$',
+    '^gradlew\.bat$',
+    '^settings\.gradle\.kts$',
+    '^gradle\.properties$',
+    '^package\.json$',
+    '^package-lock\.json$',
+    '^README\.md$',
+    '^LICENSE$',
+    '^NOTICE$',
+    '^CHANGELOG\.md$',
+    '^patches-bundle\.json$',
+    '^patches-list\.json$'
 )
 foreach ($path in $mainPaths) {
-    foreach ($pattern in $mainDenyPatterns) {
-        if ($path -match $pattern) {
-            Add-CheckError "Development-only path exists on main: $path"
-        }
+    if (-not ($mainAllowPatterns | Where-Object { $path -cmatch $_ })) {
+        Add-CheckError "Path is outside the main product allowlist: $path"
     }
 }
 
 $tracked = git -C $repoRoot ls-files
 $sensitivePatterns = @(
-    '\.(apk|apkm|xapk|dex|jks|keystore|p12|pem|key)$',
+    '\.(apk|apkm|xapk|dex|jks|keystore|p12|pfx|pk8|pem|key)$',
+    '(^|/)\.env(?!\.example$)(?:\..+)?$',
+    '(^|/)(?:[^/]+-)?credentials\.json$',
+    '(^|/)(?:[^/]+-)?secrets\.properties$',
+    '(^|/)(decompiled|decompiled-output)/',
     '(^|/)jadx-output/',
     '(^|/)upstream-cache/',
     'local-secrets\.properties$'
@@ -123,6 +153,25 @@ foreach ($path in $tracked) {
             Add-CheckError "Sensitive or generated file is tracked: $path"
         }
     }
+}
+
+foreach ($sentinel in @(
+    ".env",
+    "credentials.json",
+    "provider-secrets.properties",
+    "signing.pfx",
+    "signing.pk8",
+    "decompiled/classes.smali",
+    "nested/decompiled-output/classes.smali"
+)) {
+    git -C $repoRoot check-ignore --no-index -q -- $sentinel
+    if ($LASTEXITCODE -ne 0) {
+        Add-CheckError "Sensitive sentinel is not ignored: $sentinel"
+    }
+}
+git -C $repoRoot check-ignore --no-index -q -- ".env.example"
+if ($LASTEXITCODE -eq 0) {
+    Add-CheckError ".env.example must remain unignored."
 }
 
 $manifest = Get-Content -Raw -LiteralPath (Join-Path $repoRoot "docs\upstream\manifest.json") |

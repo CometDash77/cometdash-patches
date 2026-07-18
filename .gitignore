@@ -119,14 +119,25 @@ gradle-app.setting
 *.xapk
 
 # Signing and provider secrets
+.env
+.env.*
+!.env.example
+credentials.json
+*-credentials.json
+secrets.properties
+*-secrets.properties
 *.jks
 *.keystore
 *.p12
+*.pfx
+*.pk8
 *.pem
 *.key
 local-secrets.properties
 
 # Reverse-engineering and upstream working caches
+decompiled/
+decompiled-output/
 /jadx-output/
 /upstream-cache/
 *.dex

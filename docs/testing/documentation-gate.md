@@ -9,7 +9,7 @@ This gate must pass before phase one begins.
 - `CONTEXT-MAP.md` resolves all contexts and every CONTEXT file follows the glossary-only structure.
 - ADR numbers are unique and sequential.
 - APKs, credentials, decompiled files and signing material are ignored and untracked.
-- `main` contains none of the development denylist; `dev` contains the required knowledge assets.
+- `main` contains only the product paths allowlisted by the repository workflow; `dev` contains the required knowledge assets.
 - The local snapshot digest matches `manifest.json`.
 - `tools/sync_upstream_docs.ps1 -Check` compares every staged snapshot blob with the fixed GitHub revision and verifies that revision is still upstream `main`.
 
