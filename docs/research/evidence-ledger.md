@@ -31,7 +31,7 @@
 ### Official documentation snapshot
 
 - The pinned documentation [`README.md`](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/README.md) indexes the Morphe user and development documentation. The pinned development [`1_setup.md`](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/docs/morphe-development/1_setup.md) directs developers to clone the template's `dev` branch and build it with `./gradlew buildAndroid`.
-- The immutable pinned [`troubleshooting.md:85`](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/docs/morphe-resources/troubleshooting.md#L85) links to the nonexistent `questions.md#11-how-to-update-patched-apps` fragment. The matching heading is [`questions.md:48`, question 22](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/docs/morphe-resources/questions.md#L48). This upstream defect is recorded here without modifying the vendored snapshot.
+- The immutable pinned [`troubleshooting.md:85`](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/docs/morphe-resources/troubleshooting.md#L85) links to the nonexistent `questions.md#11-how-to-update-patched-apps` fragment. The correct target is [`questions.md#22-how-to-update-patched-apps`](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/docs/morphe-resources/questions.md#22-how-to-update-patched-apps). This upstream defect is recorded here without modifying the vendored snapshot.
 
 ### Official Voice over translation
 
