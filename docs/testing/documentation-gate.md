@@ -4,7 +4,7 @@ This gate must pass before phase one begins.
 
 ## Automated checks
 
-- All relative Markdown links resolve.
+- Every relative Markdown file target exists. Fragment defects in immutable upstream snapshots are recorded in the evidence ledger instead of editing the snapshot.
 - `AGENTS.md` links to every documentation class.
 - `CONTEXT-MAP.md` resolves all contexts and every CONTEXT file follows the glossary-only structure.
 - ADR numbers are unique and sequential.

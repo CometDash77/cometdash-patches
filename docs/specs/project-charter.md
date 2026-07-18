@@ -32,3 +32,42 @@ CometDash Patches 是一个公开、独立维护、兼容 Morphe 的个人 Patch
 - 用户提供合法取得的测试 APK；Agent 不负责下载 YouTube APK。
 - 首个验证基线为 YouTube `21.04.223`，其他官方稳定版本仅是未来扩展目标。
 - 用户最终通过 Morphe App 添加 Source、修补 APK，并执行不超过五项的人工冒烟检查。
+
+## Decision Authority Map
+
+本表只定位决定的权威文本，不复述决定内容。
+
+| Decision ID | Authority |
+| --- | --- |
+| `CHAR-001` | [目标](#目标) |
+| `CHAR-002` | [成功标准](#成功标准) |
+| `CHAR-003` | [当前阶段](#当前阶段) |
+| `CHAR-004` | [资产边界](#资产边界) |
+| `CHAR-005` | [目标环境](#目标环境) |
+| `LEARN-000` | [培养路线：原则](./agent-learning-program.md#原则) |
+| `LEARN-001` | [培养路线：阶段 0](./agent-learning-program.md#0-决策与记忆基线) |
+| `LEARN-002` | [培养路线：阶段 1](./agent-learning-program.md#1-morphe-生态) |
+| `LEARN-003` | [培养路线：阶段 2](./agent-learning-program.md#2-官方-voice-over-translation) |
+| `LEARN-004` | [培养路线：阶段 3](./agent-learning-program.md#3-开发与构建基线) |
+| `LEARN-005` | [培养路线：阶段 4](./agent-learning-program.md#4-可观察状态) |
+| `LEARN-006` | [培养路线：阶段 5](./agent-learning-program.md#5-provider-与模型) |
+| `LEARN-007` | [培养路线：阶段 6](./agent-learning-program.md#6-调度上下文与音频) |
+| `LEARN-008` | [培养路线：阶段 7](./agent-learning-program.md#7-原生字幕技术探针) |
+| `LEARN-009` | [培养路线：阶段 8](./agent-learning-program.md#8-source-发布) |
+| `EVOT-001` | [EVOT：产品目标](./enhanced-voice-over-translation.md#产品目标) |
+| `EVOT-002` | [EVOT：交互](./enhanced-voice-over-translation.md#交互) |
+| `EVOT-003` | [EVOT：Translation Run](./enhanced-voice-over-translation.md#translation-run) |
+| `EVOT-004` | [EVOT：Provider Profile](./enhanced-voice-over-translation.md#provider-profile) |
+| `EVOT-005` | [EVOT：模型发现与配置](./enhanced-voice-over-translation.md#模型发现与配置) |
+| `EVOT-006` | [EVOT：Provider 诊断](./enhanced-voice-over-translation.md#provider-诊断) |
+| `EVOT-007` | [EVOT：翻译调度](./enhanced-voice-over-translation.md#翻译调度) |
+| `EVOT-008` | [EVOT：三层上下文](./enhanced-voice-over-translation.md#三层上下文) |
+| `EVOT-009` | [EVOT：TTS 与原声](./enhanced-voice-over-translation.md#tts-与原声) |
+| `EVOT-010` | [EVOT：AI 字幕](./enhanced-voice-over-translation.md#ai-字幕) |
+| `EVOT-011` | [EVOT：明确不做](./enhanced-voice-over-translation.md#明确不做) |
+| `ADR-001` | [Separate development and release trees](../adr/0001-separate-development-and-release-trees.md) |
+| `ADR-002` | [Publish Enhanced Voice Over Translation independently](../adr/0002-publish-evot-as-an-independent-patch.md) |
+| `ADR-003` | [Use capability-aware OpenAI-compatible Provider Profiles](../adr/0003-openai-compatible-provider-profiles.md) |
+| `ADR-004` | [Freeze per-video runs and use timeline context](../adr/0004-freeze-per-video-runs-and-use-timeline-context.md) |
+| `ADR-005` | [Probe native captions without an overlay fallback](../adr/0005-probe-native-captions-without-overlay-fallback.md) |
+| `ADR-006` | [Do not track upstream Voice Over Translation after derivation](../adr/0006-do-not-track-upstream-vot-after-derivation.md) |

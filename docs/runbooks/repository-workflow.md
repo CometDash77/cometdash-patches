@@ -27,7 +27,7 @@ An allowlisted path is not automatically safe: generated metadata, URLs and user
 
 ## Stable promotion
 
-Stable promotion is currently **blocked**. Do not merge `dev` wholesale into `main`: that violates the branch content boundary and the template's default semantic-release backmerge can remove development assets from `dev`.
+Stable promotion is currently **blocked**. Do not merge `dev` wholesale into `main`: that violates the branch content boundary, and the template's pinned [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc) configures a semantic-release backmerge from `main` to `dev` that can remove development assets from `dev`.
 
 Before the first stable release, implement and review a projection workflow that:
 

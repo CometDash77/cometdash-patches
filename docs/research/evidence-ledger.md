@@ -7,6 +7,7 @@
 - `Source`: 固定 commit 的官方源码或仓库配置。
 - `Official documentation`: 固定 commit 的官方说明；实现冲突时以源码和运行证据为准。
 - `Maintainer discussion`: issue/PR 中的设计背景，不能单独证明当前实现。
+- `Contributor discussion`: issue/PR 中贡献者提供的设计背景，记录 `author_association`，不能单独证明当前实现。
 - `Reference implementation`: 非 Morphe 项目的可借鉴设计，不证明 Android Patch 可行。
 - `Runtime input`: 本地 APK、日志或设备观察，仅对记录的版本和哈希成立。
 
@@ -22,6 +23,16 @@
 
 ## Verified findings
 
+### Patch Source template
+
+- The pinned template [`README.md`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/README.md) directs development to `dev`, pre-release testing through Morphe Manager, and stable release by merging `dev` to `main`.
+- The pinned [release workflow](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.github/workflows/release.yml) invokes semantic release. The pinned [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc) declares `main` stable, `dev` prerelease, and a semantic-release backmerge from `main` to `dev`.
+
+### Official documentation snapshot
+
+- The pinned documentation [`README.md`](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/README.md) indexes the Morphe user and development documentation. The pinned development [`1_setup.md`](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/docs/morphe-development/1_setup.md) directs developers to clone the template's `dev` branch and build it with `./gradlew buildAndroid`.
+- The immutable pinned [`troubleshooting.md:85`](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/docs/morphe-resources/troubleshooting.md#L85) links to the nonexistent `questions.md#11-how-to-update-patched-apps` fragment. The matching heading is [`questions.md:48`, question 22](https://github.com/MorpheApp/morphe-documentation/blob/37b5eeb9c690ea169937fc2bac197bdcdb269014/docs/morphe-resources/questions.md#L48). This upstream defect is recorded here without modifying the vendored snapshot.
+
 ### Official Voice over translation
 
 - The pinned [`README.md`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/README.md) lists Voice over translation as translated TTS synchronized with video playback.
@@ -30,14 +41,13 @@
 - [`VoiceOverTranslationButton.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/videoplayer/VoiceOverTranslationButton.java) uses short press to toggle and long press to open `VotBottomSheet`.
 - [`TranscriptFetcher.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/voiceovertranslation/TranscriptFetcher.java) retrieves YouTube timed text independently; [`TranscriptTranslator.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/voiceovertranslation/TranscriptTranslator.java) supports Google, MyMemory, and an OpenRouter-specific streaming request.
 - The pinned [`TranscriptTranslator.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/voiceovertranslation/TranscriptTranslator.java) fixes OpenRouter `temperature` to zero and sends OpenRouter-specific routing; [`VoiceOverTranslationModelPreference.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/settings/preference/VoiceOverTranslationModelPreference.java) provides presets and manual model ID entry, not generic Provider Profiles.
-- [`VoiceOverTranslationPatch.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/voiceovertranslation/VoiceOverTranslationPatch.java) and [`VotOriginalVolumePatch.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/voiceovertranslation/VotOriginalVolumePatch.java) implement runtime original-audio multiplier behavior. [`TtsCache.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/voiceovertranslation/TtsCache.java) caches TTS data; no persistent translation-result cache appears in the pinned translation path.
+- [`VoiceOverTranslationPatch.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/voiceovertranslation/VoiceOverTranslationPatch.java) and [`VotOriginalVolumePatch.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/voiceovertranslation/VotOriginalVolumePatch.java) implement runtime original-audio multiplier behavior. [`TtsCache.java`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/extensions/youtube/src/main/java/app/morphe/extension/youtube/patches/voiceovertranslation/TtsCache.java) caches TTS data.
 
 ### Native translated captions
 
 - [VoT PR #1685](https://github.com/MorpheApp/morphe-patches/pull/1685) introduced the official feature.
-- In [maintainer comment 4646409177](https://github.com/MorpheApp/morphe-patches/pull/1685#issuecomment-4646409177), the author states that obtaining native translated subtitles was not achieved and runtime translation was used instead.
+- In [contributor comment 4646409177](https://github.com/MorpheApp/morphe-patches/pull/1685#issuecomment-4646409177), the PR author states that obtaining native translated subtitles was not achieved and runtime translation was used instead. GitHub reports `author_association=CONTRIBUTOR`.
 - [Issue #1880](https://github.com/MorpheApp/morphe-patches/issues/1880) requests auto-translated captions and remained open when checked.
-- No verified Morphe/ReVanced Android Patch example was found that injects LLM-translated text into YouTube's native CC renderer. This is an absence-of-evidence statement, not proof of impossibility.
 
 ### Patch Source hosting
 

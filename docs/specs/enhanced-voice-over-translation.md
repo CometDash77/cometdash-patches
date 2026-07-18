@@ -4,7 +4,7 @@
 
 在官方 Voice over translation 的基础能力上，提供可观察、可配置、对 LLM 供应商开放且更重视上下文质量的 YouTube 译配音 Patch。优先级为：可观察与稳定性，其次翻译/字幕质量，最后语言与声音扩展。
 
-首版只声明支持已实测的 YouTube `21.04.223`。Patch 使用独立 `evot` 命名空间，不能与官方 `Voice over translation` 同时选择。
+首个验证候选为 YouTube `21.04.223`；只有该 exact APK 通过 release gate 后才声明支持。Patch 使用独立 `evot` 命名空间，不能与官方 `Voice over translation` 同时选择。
 
 ## 交互
 
