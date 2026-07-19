@@ -18,6 +18,18 @@ function Get-GitHubHeaders {
     }
     if (-not [string]::IsNullOrWhiteSpace([string]$token)) {
         $headers.Authorization = "Bearer $token"
+        try {
+            Invoke-RestMethod -Uri "https://api.github.com/user" -Headers $headers | Out-Null
+        }
+        catch {
+            $response = $_.Exception.Response
+            if ($null -ne $response -and
+                [int]$response.StatusCode -eq [int][System.Net.HttpStatusCode]::Unauthorized) {
+                $headers.Remove("Authorization")
+            } else {
+                throw
+            }
+        }
     }
     return $headers
 }
