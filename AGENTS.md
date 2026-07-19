@@ -47,6 +47,7 @@ This file exists only on the `dev` working branch. Start every task by reading
 - Current product requirements: `docs/specs/`
 - Hard-to-reverse decisions: `docs/adr/`
 - Source evidence and unknowns: `docs/research/`
+- Reusable execution lessons: `docs/research/learning-records/`
 - Operational procedures: `docs/runbooks/`
 - Acceptance gates: `docs/testing/`
 - Vendored official documentation: `docs/upstream/`
