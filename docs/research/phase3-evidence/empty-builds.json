@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "candidateSha": "9f9506f86f50ef5f0a7c82c8c795e87c0faecd9b",
+  "toolchain": {
+    "gradle": "9.6.1",
+    "jdk": "21.0.10",
+    "gradleDistributionSha256": "9c0f7faeeb306cb14e4279a3e084ca6b596894089a0638e68a07c945a32c9e14"
+  },
+  "failedAttempts": [
+    {
+      "id": "empty-build-a1",
+      "exitCode": 1,
+      "stage": "Morphe plugin resolution",
+      "result": "Plugin unavailable before replacement package credential",
+      "rawLogSha256": "69b8b169ca79a426aad26aaf2d9f8fad5cce5cba52dbaa12b7131831b4ff9759"
+    },
+    {
+      "id": "empty-build-b1",
+      "exitCode": 124,
+      "stage": "Gradle distribution download",
+      "result": "Connection reset before configuration",
+      "rawLogSha256": "b2fc248098d5249472f5e434d4590f37acdf779f57edb0cb3cae8a2640d8b175"
+    }
+  ],
+  "successfulBuilds": [
+    {
+      "id": "empty-build-a2",
+      "exitCode": 0,
+      "artifactBytes": 654811,
+      "artifactSha256": "c0c7ece1c6e45eb231353a40d3973f46007a0d91a4e5d3c66be136f050100e65",
+      "rawLogSha256": "66115be121c865b3ce47695bdf6836700b8d32833945198acf4461c2e3c73e06",
+      "worktreeClean": true
+    },
+    {
+      "id": "empty-build-b2",
+      "exitCode": 0,
+      "artifactBytes": 654812,
+      "artifactSha256": "634088096de4376f35da29b2f232646055f6135ed95f1bc5325e016a19afd164",
+      "rawLogSha256": "5204945ce5d58ef1357c09ef09a08c740d292c5d4889eb409825d39418a132a7",
+      "worktreeClean": true
+    }
+  ],
+  "comparison": {
+    "entryCount": 13,
+    "entryOrderEqual": true,
+    "semanticallyEquivalent": true,
+    "bitForBitEqual": false,
+    "equalContentEntries": 12,
+    "onlyContentDifference": "META-INF/MANIFEST.MF generated Timestamp",
+    "classesDexEqual": true,
+    "extensionMpeEqual": true
+  },
+  "runtimeLoader": {
+    "task": ":patches:generatePatchesList",
+    "exitCode": 0,
+    "loadedPatchCount": 0,
+    "generatedListSha256": "3bf5ce2abeb743e4d089ddbef9ab4144ff6e6c18140db3d1cb4176d3995c9454",
+    "worktreeCleanAfterRestore": true
+  }
+}
