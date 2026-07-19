@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "phase3BaseSha": "13e08ab9251ab8a6787e1ac3e08c8709eb8dc52d",
+  "entryGate": {
+    "expectedPhase2Sha": "8a2469ae3fb36730fc9ebf2a9b7ace1b846b440b",
+    "failedWorkflowIds": [29676400093, 29676512098],
+    "fixCommits": [
+      "d7b70a9d92a0260a267ec37a01d6e785eca7fd86",
+      "13e08ab9251ab8a6787e1ac3e08c8709eb8dc52d"
+    ],
+    "successfulWorkflowId": 29676589428,
+    "successful": true
+  },
+  "toolchain": {
+    "jdkVersion": "21.0.10",
+    "gradleVersion": "9.6.1",
+    "gradleDistributionBytes": 140682664,
+    "gradleDistributionSha256": "9c0f7faeeb306cb14e4279a3e084ca6b596894089a0638e68a07c945a32c9e14",
+    "jadxVersion": "1.5.6",
+    "jadxArchiveBytes": 72646741,
+    "jadxArchiveSha256": "545ea2be9c242511bc145755cf4bda2485ade42966e096f8b4d3da2a230e8974",
+    "adbVersion": "37.0.0",
+    "aospImage": "system-images;android-35;default;x86_64",
+    "packageAccessVerified": true,
+    "credentialValuesRecorded": false,
+    "compromisedTokenRevocationConfirmed": false
+  },
+  "apk": {
+    "filename": "com.google.android.youtube_21.04.223-1561052632_minAPI28(arm64-v8a,armeabi-v7a,x86,x86_64)(nodpi)_apkmirror.com.apk",
+    "bytes": 171814203,
+    "sha256": "78571be679f586d11a4e56fb1ce6bf9dfd958ce6b8af786c4a3bd94792ce8c7c",
+    "packageName": "com.google.android.youtube",
+    "versionName": "21.04.223",
+    "versionCode": 1561052632,
+    "minSdk": 28,
+    "targetSdk": 36,
+    "abis": ["arm64-v8a", "armeabi-v7a", "x86", "x86_64"],
+    "signerV31Sha256": "5aad2bee6db95d17e05a08d7d1e64c10a1511879154483916b6ae6c7fd9cb0c6",
+    "signerV30Sha256": "3d7a1223019aa39d9ea0e3436ab7c0896bfb4fb679f4de5fe7c23f326c8f994a",
+    "sourceStampSha256": "3257d599a49d2c961a471ca9843f59d341a405884583fc087df4237b733bbd6d",
+    "ignored": true,
+    "tracked": false
+  },
+  "staticInspection": {
+    "jadxExitCode": 1,
+    "decompilationErrors": 198,
+    "javaFiles": 47298,
+    "filesWithErrorMarkers": 101,
+    "exactPlaybackLiteralCandidates": 1,
+    "exactAudioSinkFailureLiteralCandidates": 1,
+    "exactFingerprintCompatibilityProven": false,
+    "runtimeBehaviorProven": false
+  },
+  "evidencePolicy": {
+    "rawSerialRecorded": false,
+    "credentialsRecorded": false,
+    "decompiledContentCommitted": false,
+    "apkCommitted": false,
+    "supportClaim": false
+  }
+}

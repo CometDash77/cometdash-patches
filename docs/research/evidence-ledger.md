@@ -69,6 +69,16 @@
 - Decision: Phase 3 toolchain, empty Source, exact-APK static inspection, dev-only no-op Patch, signing, and disposable-AOSP-emulator installation work may begin.
 - Boundary: no EVOT product implementation, official VoT installation, physical-device mutation, `main` change, stable release, support claim, or Phase 4 authorization.
 
+### Phase 3 build-baseline candidate
+
+- Prepared at: `2026-07-19` (`Asia/Tokyo`).
+- Phase 3 base: `13e08ab9251ab8a6787e1ac3e08c8709eb8dc52d`.
+- Candidate report: [`Phase 3 Development and Build Baseline`](./development-build-baseline.md).
+- Evidence packets: [`toolchain-apk.json`](./phase3-evidence/toolchain-apk.json), [`empty-builds.json`](./phase3-evidence/empty-builds.json), and [`probe-install.json`](./phase3-evidence/probe-install.json).
+- Automated gates: preflight, no-op probe, documentation, upstream freshness, repository postflight, and Git integrity passed before the candidate commit.
+- Open gates: independent review, explicit confirmation that the compromised setup credential was revoked, and project-owner acceptance.
+- Decision: candidate is ready for independent review only. Phase 3 is not complete and Phase 4 remains blocked.
+
 ## Fixed upstream revisions
 
 | Project | Revision | Evidence use |

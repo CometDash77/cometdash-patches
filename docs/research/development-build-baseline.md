@@ -6,7 +6,7 @@ This candidate records the Phase 3 development baseline for `dev` without implem
 
 - Phase 3 base: `13e08ab9251ab8a6787e1ac3e08c8709eb8dc52d`.
 - Plan commit: `5ecc000558ed3fc69df5dd5a1b73d1021b98cc8d`.
-- Status: candidate in progress; probe, patch/sign/install, review, and user gates remain open.
+- Status: candidate ready for independent review; the review, compromised-token revocation confirmation, and user gate remain open.
 
 ## 2. Entry and toolchain evidence
 
@@ -17,7 +17,7 @@ This candidate records the Phase 3 development baseline for `dev` without implem
 | Gradle | Wrapper and executable `9.6.1`; official 140,682,664-byte distribution matched pinned SHA-256 `9c0f7faeeb306cb14e4279a3e084ca6b596894089a0638e68a07c945a32c9e14`. | Local tool observation; later builds prove dependency/configuration behavior. |
 | JADX | Official `1.5.6` archive, 72,646,741 bytes, matched SHA-256 `545ea2be9c242511bc145755cf4bda2485ade42966e096f8b4d3da2a230e8974`. | Official release artifact plus local checksum. |
 | Android | ADB `37.0.0`, accelerated emulator available, Android 35 `default/x86_64` pure AOSP image installed. | Local tool observation; no AVD/install claim yet. |
-| Package credentials | One complete process-local GitHub credential pair passed presence checks without exposing values. | Presence only; build resolution remains the behavioral check. |
+| Package credentials | One complete process-local GitHub credential pair returned HTTP `200` for the pinned Morphe package without exposing values. | Package-resolution evidence only; compromised-token revocation confirmation remains open. |
 
 The first JADX transfer timed out and an interrupted resume left two writers on one partial file; both processes and the partial file were discarded. A single BITS transfer then produced the verified archive. Gradle wrapper downloads failed first at 10 seconds and later after four bounded attempts because of resets/timeouts; a single BITS transfer from the same official URL produced the wrapper-checksum-matching distribution. These are preserved local transport failures, not upstream artifact failures.
 
@@ -103,3 +103,20 @@ A fresh Android 35 `default/x86_64` AOSP AVD ran headless with wipe-data and sna
 One explicit-target `adb install` without replace or uninstall behavior exited `0` and returned success. The harness then incorrectly treated the first non-success line in its output array as failure; no second install was attempted. A read-only package-manager postcheck found the package and verified version `21.04.223` / code `1561052632`. The app was not launched, so startup, Google service behavior, Patch runtime behavior, and YouTube support remain unverified.
 
 Temporary signing material and patch scratch data are deleted after evidence capture. The signed APK and redacted raw logs remain outside Git only until independent review, then are deleted with the disposable AVD.
+
+## 8. Candidate gates and remaining authority
+
+The candidate gate run completed with these results:
+
+| Gate | Result |
+| --- | --- |
+| Phase 3 preflight | PASS: JDK, Gradle, package access, ADB, emulator acceleration, AOSP image, JADX and exact APK hash. |
+| No-op probe | PASS: clean build, one loadable no-mutation Patch, 9,821-byte generated bundle. |
+| Documentation | PASS: 48 Markdown files and 6 ADRs. |
+| Upstream freshness | PASS: recorded and current official-documentation revision `37b5eeb9c690ea169937fc2bac197bdcdb269014`. |
+| Repository postflight | PASS: no forbidden APK, output, key, credential, DEX, JADX tree, private identifier or raw-log artifact tracked. |
+| Git integrity | PASS: `git diff --check`; candidate edits were the only pending changes before commit. |
+
+The no-op bundle's top-level SHA-256 is expected to vary with generated archive timestamps; its verifier checks the loaded Patch contract instead of treating the archive hash as a reproducibility identity. Structured evidence is in [`toolchain-apk.json`](./phase3-evidence/toolchain-apk.json), [`empty-builds.json`](./phase3-evidence/empty-builds.json), and [`probe-install.json`](./phase3-evidence/probe-install.json).
+
+Independent review has not yet occurred. The project owner must also confirm that the credential exposed during the earlier setup mistake has been revoked. Phase 3 is not complete, Phase 4 remains blocked, and this report makes no YouTube support or runtime behavior claim.
