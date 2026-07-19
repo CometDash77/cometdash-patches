@@ -35,7 +35,10 @@ foreach ($metadata in @("patches-bundle.json", "patches-list.json", "README.md")
 }
 
 $evidenceFiles = @(Get-ChildItem -LiteralPath (Join-Path $repoRoot "docs\research") -Recurse -File |
-    Where-Object { $_.Name -match '(?i)phase.?3|development-build-baseline' })
+    Where-Object {
+        [System.IO.Path]::GetRelativePath($repoRoot, $_.FullName) -match
+            '(?i)phase.?3|development-build-baseline'
+    })
 $redactionPatterns = @(
     'emulator-\d+',
     '(?i)Authorization:\s*\S+',
