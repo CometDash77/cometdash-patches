@@ -17,12 +17,16 @@ $required = @(
     "docs/specs/enhanced-voice-over-translation.md",
     "docs/research/evidence-ledger.md",
     "docs/runbooks/repository-workflow.md",
+    "docs/runbooks/development-workflow.md",
     "docs/runbooks/upstream-documentation.md",
     "docs/upstream/manifest.json",
     "docs/upstream/README.md",
     "docs/testing/documentation-gate.md",
+    "docs/testing/development-build-gate.md",
     "docs/testing/release-gate.md",
-    "tools/sync_upstream_docs.ps1"
+    "tools/sync_upstream_docs.ps1",
+    "tools/check_phase3_preflight.ps1",
+    "tools/check_phase3_postflight.ps1"
 )
 
 foreach ($relative in $required) {
@@ -144,7 +148,7 @@ foreach ($path in $mainPaths) {
 
 $tracked = git -C $repoRoot ls-files
 $sensitivePatterns = @(
-    '\.(apk|apkm|xapk|dex|jks|keystore|p12|pfx|pk8|pem|key)$',
+    '\.(apk|apkm|xapk|aab|apks|idsig|dex|smali|odex|vdex|oat|jks|keystore|p12|pfx|pk8|pem|key)$',
     '(^|/)\.env(?!\.example$)(?:\..+)?$',
     '(^|/)(?:[^/]+-)?credentials\.json$',
     '(^|/)(?:[^/]+-)?secrets\.properties$',
@@ -167,7 +171,9 @@ foreach ($sentinel in @(
     "provider-secrets.properties",
     "signing.pfx",
     "signing.pk8",
+    "evidence/output.apks",
     "decompiled/classes.smali",
+    "decoded/classes.dex",
     "nested/decompiled-output/classes.smali"
 )) {
     $ignoreOutput = @(git -c core.excludesFile=NUL -C $repoRoot check-ignore --no-index -v -- $sentinel 2>$null)

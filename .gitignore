@@ -117,6 +117,9 @@ gradle-app.setting
 *.apk
 *.apkm
 *.xapk
+*.aab
+*.apks
+*.idsig
 
 # Signing and provider secrets
 .env
@@ -141,6 +144,10 @@ decompiled-output/
 /jadx-output/
 /upstream-cache/
 *.dex
+*.smali
+*.odex
+*.vdex
+*.oat
 
 # Ignore vscode config
 .vscode/
