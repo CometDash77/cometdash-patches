@@ -5,7 +5,7 @@ import app.morphe.patcher.patch.AppTarget
 import app.morphe.patcher.patch.Compatibility
 import app.morphe.patcher.patch.resourcePatch
 
-/** Development-only loader probe. Its empty execution block intentionally mutates nothing. */
+/** Development-only loader probe. Its empty Patch body intentionally mutates nothing. */
 val phaseThreeNoopProbePatch = resourcePatch(
     name = "Phase 3 no-op Patch probe",
     description = "Development-only exact-APK Patch loading probe; performs no mutation.",

@@ -1,5 +1,6 @@
 param(
-    [string]$OutputRoot = "C:\tmp\phase3-noop-probe"
+    [string]$OutputRoot = "C:\tmp\phase3-noop-probe",
+    [string]$BaseSha = "13e08ab9251ab8a6787e1ac3e08c8709eb8dc52d"
 )
 
 $ErrorActionPreference = "Stop"
@@ -31,7 +32,7 @@ Require-Match $verifierContent 'patches\.size == 1' "Runtime verifier must check
 
 $forbidden = @("patches", "extensions", "patches-bundle.json", "patches-list.json", "README.md")
 foreach ($path in $forbidden) {
-    $changes = @(git -C $repoRoot diff --name-only HEAD -- $path)
+    $changes = @(git -C $repoRoot diff --name-only "$BaseSha..HEAD" -- $path)
     if ($changes.Count -gt 0) { throw "Probe changed forbidden product path: $($changes -join ', ')" }
 }
 $mainProbePaths = @(git -C $repoRoot ls-tree -r --name-only main -- tools/probes/phase3-noop)
