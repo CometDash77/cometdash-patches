@@ -1,6 +1,6 @@
 # Evidence Ledger
 
-核验日期：2026-07-18（Asia/Hong_Kong）
+核验日期：2026-07-19（Asia/Hong_Kong）
 
 ## Evidence classes
 
@@ -10,6 +10,17 @@
 - `Contributor discussion`: issue/PR 中贡献者提供的设计背景，记录 `author_association`，不能单独证明当前实现。
 - `Reference implementation`: 非 Morphe 项目的可借鉴设计，不证明 Android Patch 可行。
 - `Runtime input`: 本地 APK、日志或设备观察，仅对记录的版本和哈希成立。
+
+## Gate records
+
+### Accepted documentation decision baseline
+
+- Confirmed by: Project owner.
+- Confirmed at: 2026-07-19（Asia/Hong_Kong）。
+- Baseline revision: `b1d6602981dff5bd466146eedecfa58dd4cc0944`.
+- Scope: `CHAR-001..005`, `LEARN-000..009`, `EVOT-001..011`, and `ADR-001..006` in the [Decision Authority Map](../specs/project-charter.md#decision-authority-map).
+- Decision: The mapped project charter, learning program, EVOT specification, and ADRs form the complete accepted decision baseline.
+- Boundary: This confirmation does not authorize Phase 1.
 
 ## Fixed upstream revisions
 
