@@ -82,17 +82,46 @@ if ($gradleExecutables.Count -ne 1) {
 $gradleProperties = Join-Path $env:USERPROFILE ".gradle\gradle.properties"
 $propertyUser = $false
 $propertyKey = $false
+$credentialUser = ""
+$credentialKey = ""
 if (Test-Path -LiteralPath $gradleProperties) {
     $propertyLines = Get-Content -LiteralPath $gradleProperties
-    $propertyUser = [bool]($propertyLines -match '^\s*gpr\.user\s*=\s*\S+')
-    $propertyKey = [bool]($propertyLines -match '^\s*gpr\.key\s*=\s*\S+')
+    $propertyUserLine = $propertyLines | Where-Object { $_ -match '^\s*gpr\.user\s*=\s*\S+' } | Select-Object -First 1
+    $propertyKeyLine = $propertyLines | Where-Object { $_ -match '^\s*gpr\.key\s*=\s*\S+' } | Select-Object -First 1
+    $propertyUser = -not [string]::IsNullOrWhiteSpace($propertyUserLine)
+    $propertyKey = -not [string]::IsNullOrWhiteSpace($propertyKeyLine)
+    if ($propertyUser -and $propertyKey) {
+        $credentialUser = ($propertyUserLine -replace '^\s*gpr\.user\s*=\s*', '').Trim()
+        $credentialKey = ($propertyKeyLine -replace '^\s*gpr\.key\s*=\s*', '').Trim()
+    }
 }
 $environmentPair = -not [string]::IsNullOrWhiteSpace($env:GITHUB_ACTOR) -and
     -not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)
 if (-not (($propertyUser -and $propertyKey) -or $environmentPair)) {
     Add-Error "A complete GitHub Packages credential pair is not available."
 } else {
-    Add-Pass "package_credentials" "present"
+    if ($environmentPair -and [string]::IsNullOrWhiteSpace($credentialUser)) {
+        $credentialUser = $env:GITHUB_ACTOR
+        $credentialKey = $env:GITHUB_TOKEN
+    }
+    $credentialPair = [Convert]::ToBase64String(
+        [Text.Encoding]::ASCII.GetBytes("${credentialUser}:${credentialKey}")
+    )
+    $packageHeaders = @{ Authorization = "Basic $credentialPair" }
+    $packageUrl = "https://maven.pkg.github.com/MorpheApp/registry/" +
+        "app/morphe/patches/app.morphe.patches.gradle.plugin/1.3.3/" +
+        "app.morphe.patches.gradle.plugin-1.3.3.pom"
+    try {
+        $packageResponse = Invoke-WebRequest -Uri $packageUrl -Headers $packageHeaders -Method Head
+        if ([int]$packageResponse.StatusCode -ne 200) {
+            Add-Error "Morphe GitHub Packages probe did not return HTTP 200."
+        } else {
+            Add-Pass "package_access" "verified"
+        }
+    }
+    catch {
+        Add-Error "Morphe GitHub Packages access could not be verified."
+    }
 }
 
 $sdkRoot = if (-not [string]::IsNullOrWhiteSpace($env:ANDROID_SDK_ROOT)) {
