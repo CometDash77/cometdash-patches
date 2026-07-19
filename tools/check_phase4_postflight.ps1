@@ -54,7 +54,7 @@ foreach ($file in $evidenceFiles) {
     }
 }
 
-git -C $repoRoot diff --check $BaseSha..HEAD
+git -C $repoRoot diff "$BaseSha..HEAD" --check
 if ($LASTEXITCODE -ne 0) {
     Add-CheckError "git diff --check failed."
 }

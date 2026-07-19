@@ -104,6 +104,16 @@
 - Boundary: no Provider/model request, generated context, translation, TTS, Audio Ducking, native translated captions, Agent-operated physical device work, `main` change, stable release, or YouTube support claim.
 - Blocking rule: product implementation cannot begin until exact hook uniqueness, official-VoT mutual exclusion, and the logging boundary are evidence-verified.
 
+### Phase 4 integration-seam gate
+
+- Prepared at: `2026-07-19` (`Asia/Hong_Kong`).
+- Entry commit: `fdcac803a9c32fbe6fd518bf81774a2a9e731634`; Release workflow `29685139734` completed successfully without publishing a new prerelease.
+- Evidence report: [`Phase 4 Integration Seam Evidence`](./phase4-integration-seams.md).
+- Structured packet: [`integration-seams.json`](./phase4-evidence/integration-seams.json).
+- Verified: fixed `morphe-patcher@b69536f` exposes no Patch conflict/exclusion contract; fixed `morphe-manager@a2c3d31` persists and combines selections per Bundle without cross-Bundle constraints; fixed `morphe-patches-library@9e555a2` Logger emits and retains arbitrary message and throwable text without redaction.
+- Exact-hook status: not run after the earlier mandatory mutual-exclusion check blocked; Phase 3 static evidence remains the current limit.
+- Decision: **BLOCKED**. The accepted requirement that EVOT and official Voice over translation cannot be selectable together cannot be implemented with the fixed Morphe interfaces. Phase 4 Tickets 3-9 must not begin until Morphe gains a verified cross-Bundle conflict contract or the project owner revises the accepted requirement through a new reviewed decision.
+
 ## Fixed upstream revisions
 
 | Project | Revision | Evidence use |

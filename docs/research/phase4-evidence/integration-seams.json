@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "phase4BaseSha": "b0a74a7fef5547d644c545ae742c9be8b799f54a",
+  "candidateSha": null,
+  "evidenceClass": "Source",
+  "subject": "phase4-integration-seams",
+  "checks": [
+    {
+      "id": "P4-SEAM-001",
+      "status": "BLOCKED",
+      "evidenceReference": "morphe-patcher@b69536fd33b69a1d1b2643068941f1052cf51708:src/main/kotlin/app/morphe/patcher/patch/Patch.kt",
+      "limit": "The fixed Patch model has positive dependencies and compatibility but no conflict or exclusion contract."
+    },
+    {
+      "id": "P4-SEAM-002",
+      "status": "BLOCKED",
+      "evidenceReference": "morphe-manager@a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948:PatchSelectionRepository.kt,PatchBundleInfo.kt",
+      "limit": "Selections are independent per Bundle and package; no cross-Bundle Patch constraint is evaluated."
+    },
+    {
+      "id": "P4-SEAM-003",
+      "status": "PASS",
+      "evidenceReference": "morphe-patches-library@9e555a2273533ef13e51db70a55d3fd544752756:extension-library/src/main/java/app/morphe/extension/shared/Logger.java",
+      "limit": "The final sink boundary is proven to retain and emit arbitrary messages and throwable text without redaction; a typed pre-sink adapter is mandatory."
+    },
+    {
+      "id": "P4-SEAM-004",
+      "status": "BLOCKED",
+      "evidenceReference": "docs/research/development-build-baseline.md#4-static-fingerprint-recheck",
+      "limit": "The exact-hook probe was not run because the earlier mandatory mutual-exclusion gate failed."
+    }
+  ],
+  "failedExperiments": [
+    {
+      "id": "P4-TRANSFER-001",
+      "result": "Three HTTPS pushes and three parallel HTTPS clones failed through connection reset or connection timeout; SSH push and clone paths later succeeded.",
+      "limit": "Transport failures do not imply an upstream source or repository failure."
+    }
+  ]
+}
