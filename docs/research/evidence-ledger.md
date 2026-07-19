@@ -93,6 +93,17 @@
 - Decision: Phase 3 is accepted and complete. Phase 4 planning is unlocked.
 - Boundary: this approval does not authorize EVOT implementation, a stable release, physical-device work, official VoT installation, or a YouTube support claim. Those require their own planned gates.
 
+### Phase 4 authorization and entry gate
+
+- Authorized by: Project owner.
+- Authorized at: `2026-07-19T19:21:12+08:00` (`Asia/Hong_Kong`).
+- Accepted plan: [`Phase 4 Observable Pipeline Status Plan`](../superpowers/plans/2026-07-19-morphe-phase-4.md).
+- Phase 4 base: `b0a74a7fef5547d644c545ae742c9be8b799f54a` on `dev` and `origin/dev` at authorization time.
+- Upstream freshness: the official-documentation snapshot check passed at the recorded revision `37b5eeb9c690ea169937fc2bac197bdcdb269014` before the entry assets were prepared.
+- Decision: Phase 4 evidence-seam research, observable-state core, exact-version experimental EVOT Patch, real Caption acquisition, recovery behavior, `dev` prerelease candidate, and project-owner manual smoke work may begin.
+- Boundary: no Provider/model request, generated context, translation, TTS, Audio Ducking, native translated captions, Agent-operated physical device work, `main` change, stable release, or YouTube support claim.
+- Blocking rule: product implementation cannot begin until exact hook uniqueness, official-VoT mutual exclusion, and the logging boundary are evidence-verified.
+
 ## Fixed upstream revisions
 
 | Project | Revision | Evidence use |

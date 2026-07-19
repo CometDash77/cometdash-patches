@@ -23,10 +23,13 @@ $required = @(
     "docs/upstream/README.md",
     "docs/testing/documentation-gate.md",
     "docs/testing/development-build-gate.md",
+    "docs/testing/observable-state-gate.md",
     "docs/testing/release-gate.md",
     "tools/sync_upstream_docs.ps1",
     "tools/check_phase3_preflight.ps1",
-    "tools/check_phase3_postflight.ps1"
+    "tools/check_phase3_postflight.ps1",
+    "tools/check_phase4_preflight.ps1",
+    "tools/check_phase4_postflight.ps1"
 )
 
 foreach ($relative in $required) {

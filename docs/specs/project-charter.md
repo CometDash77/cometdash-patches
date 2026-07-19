@@ -16,9 +16,9 @@ CometDash Patches 是一个公开、独立维护、兼容 Morphe 的个人 Patch
 
 ## 当前阶段
 
-阶段一《Morphe 生态架构分析报告》和阶段二《官方 Voice Over Translation》源码研究已经通过独立复核并由用户验收。当前已授权阶段三开发与构建基线，只允许工具链、空 Source、目标 APK 静态证据和隔离 no-op Patch 的构建/签名/模拟器安装验证。
+阶段一至阶段三已经通过独立复核并由用户验收。阶段四《可观察状态》已获用户授权，可在 `dev` 实现独立 EVOT Patch、播放器状态面板、隔离 Translation Run、真实 Caption 获取和可操作的脱敏失败恢复。
 
-阶段三不授权 EVOT 产品实现、官方 Voice over translation 安装、物理设备安装、`main` 变更、稳定发布或 YouTube 版本支持声明。阶段四必须等待阶段三独立复核和用户最终验收。
+阶段四不授权 Provider/模型请求、生成上下文、翻译、TTS、Audio Ducking、原生译文字幕、物理设备 Agent 操作、`main` 变更、稳定发布或 YouTube 版本支持声明。阶段五必须等待阶段四独立复核和用户最终验收。
 
 ## 资产边界
 
