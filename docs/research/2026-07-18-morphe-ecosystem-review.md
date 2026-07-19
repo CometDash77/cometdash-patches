@@ -272,3 +272,108 @@ exit=0
 **BLOCKED**
 
 初审五项中四项已解决，但 `MORPHE-P1-003` 仍开放。该 verdict 不授权 Phase 2、Patch implementation 或 release；修复后仍需独立重审，之后由用户作最终阶段决定。
+
+---
+
+## Candidate `f34f8c8` 最终独立重审
+
+### 最终重审身份、固定范围与方法
+
+- 重审时间：`2026-07-19T11:46:22+08:00`（`Asia/Hong_Kong`）。
+- Phase 1 base/authorization commit：`0e2dd4394ec853278a74f7456f761bb8cad16ea1`。
+- 前次 Reviewer report commit：`1be56e6b71ed4edf464a75ac27bdee09623f9440`。
+- 最终修复 candidate：`f34f8c827801dfeb3d1bd0c3493e5aaf8de6e6ef`；重审开始和写报告前均确认 `HEAD` 等于该 endpoint、分支为 `dev`、工作树为空。
+- Reviewer 重新完整阅读 candidate report、evidence ledger、accepted baseline、Tasks 6-9、全部门禁、两份 context 和本文件两次历史 `BLOCKED` 记录；没有只审 `f34f8c8` diff，也没有以先前 Reviewer 或执行 Agent 的推理代替原始证据。
+- Reviewer 重新读取组织 API、21 个 default-branch HEAD、全部 frozen source/config links、核心 lifecycle files 和 fixed direct release dependency source；没有 clone、vendor 或 checkout 上游源码。
+- 边界保持不变：未进入 Phase 2，未读取、检查、反编译或复制本地 APK，未编写 Patch 或产品代码；本次只修改 Reviewer report。
+
+第二次修复 diff `1be56e6b71ed4edf464a75ac27bdee09623f9440..f34f8c827801dfeb3d1bd0c3493e5aaf8de6e6ef` 只修改 `docs/research/evidence-ledger.md` 与 `docs/research/morphe-ecosystem-architecture.md`。本文件两次历史 `BLOCKED` 记录在该 diff 中没有变化。完整 Phase 1 diff 仍只包含三个 `docs/research` 文件，没有 Patch/product/Phase 2 文件或禁止资产。
+
+### 全量独立证据结果
+
+- 认证组织 API 返回 `public_repos=21`；listing 为 21 个 unique、21 个 unarchived。全部 fork/default branch/40 位 HEAD 与 inventory 一致，且 `Direct=8`、`Supporting=4`、`Excluded=9` 恰好覆盖 21 行。
+- Final candidate report 包含 167 个 GitHub frozen source URL occurrences、83 个 unique URL；全部使用 `blob|tree/<40-sha>`，通过 exact-ref API 重查为 `83/83` 成功。
+- Template、Morphe Gradle plugin、official patches、patches library、changelog、Manager、Desktop 和 Patcher 的 8 个 recursive trees 全部 `truncated=false`。错误的 official-repo `PatchListGenerator.kt` path 仍为 404，实际 shared-library path 成功；Manager code search 仍指向较 frozen HEAD 落后一个 commit 的 `6db48374...`，而 exact-ref contents 成功。Candidate 保留的 failed-call resolutions 准确。
+- 重新追踪 Manager 的 Source normalization -> metadata -> `.mpp` download -> DEX validation/load -> compatibility/selection -> Runtime/Session/Patcher -> copy/applyTo -> sign/output -> installer dispatch，Desktop 的 provider/manifest -> download -> JAR load -> filter -> Patcher -> sign/output -> library/jadb install，以及 Patcher 的 loader/dependency execution/reverse finalize/resource+DEX applyTo；报告的 producer/input/consumer/output 与 ownership 边界均由对应 frozen paths 支持。
+- 三个必答问题仍准确：Manager 编排对 APK 副本的修改而 mutation primitive 属于 Patcher；Patch 是作用于 APK input 的 executable transformation 而不是 APK；Patch Source 把 metadata/version/download 与用户 APK 解耦。
+- Six Unverified facts 均给出 evidence limit 和 later-phase gate；没有把 unknown 改写为 success。Phase 1 仍未检查 APK、实现 Patch、开始 Phase 2 或声明版本支持。
+
+### `MORPHE-P1-003` 最终复核
+
+1. Template `package-lock.json` 锁定 `gradle-semantic-release-plugin=1.10.3`、registry tarball URL 与 integrity；GitHub `v1.10.3` tag 重新解析到指定 commit `75037a67e3729787c38d2374bab528233ddddaec`。
+2. Template `package-lock.json` 同时解析到 `semantic-release=25.0.7`。Template [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc) 的 prepare-capable plugin declaration order 是 changelog、Gradle release plugin、exec、git。Fixed semantic-release `v25.0.7` source `c46dbdaeda06bf14e4bfeefd79c9ae57ce31dfcf` 的 plugin loader 保留 declaration order，pipeline 顺序执行 hooks，并在 `plugins.prepare` 完成后才调用 `plugins.publish`。
+3. Changelog prepare 先写 `patches-bundle.json`。Fixed Gradle release dependency [`prepare.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/prepare.ts) 只更新并通过 Gradle properties 核对 version；没有构建 Android artifact。
+4. Exec prepare 调用 `generatePatchesList`。Template [`patches/build.gradle.kts`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/patches/build.gradle.kts) 使该 task 依赖普通 `build`；`PatchesPlugin.configureJarTask` 由此生成包含 JVM classes、manifest 和 extension resources、但没有 top-level Android patch DEX 的 JVM `.mpp`，供 `PatchListGenerator` 的 JAR loader 生成 `patches-list.json`。Git plugin 随后 commit release metadata。
+5. 进入 publish lifecycle 后，fixed dependency [`publish.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/publish.ts) 通过 [`gradle.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/gradle.ts) 发现并执行 Gradle `publish`。Morphe [`PatchesPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt) 令 `publish` 依赖 `buildAndroid`；D8 才在该阶段把 Android DEX 合入同一 archive，之后按 publish-hook order 由 GitHub plugin 上传 complete Android `.mpp`。
+
+Final graph `:74-92`、artifact rows `:122-126`、edge rows `:138-145` 与 core entry `:172-180` 现在一致地区分 prepare-time JVM `.mpp` 和 publish/buildAndroid complete Android `.mpp`。原 `MORPHE-P1-003` 的错误 artifact ordering 已解决。
+
+### 历史 findings 最终状态
+
+| ID | 最终状态 | 最终独立结论 |
+| --- | --- | --- |
+| `MORPHE-P1-001` | **Resolved** | `MorpheApp/ARSCLib` 仍为 Excluded；Patcher exact catalog 仍声明 `com.github.REAndroid:arsclib`。没有回归。 |
+| `MORPHE-P1-002` | **Resolved** | Website 仍为 Supporting；`add-source.js` -> Manager manifest/MainActivity -> `pendingDeepLinkSource` handoff 重新验证。没有回归。 |
+| `MORPHE-P1-003` | **Resolved** | Prepare-time JVM artifact、metadata commit、publish-time `buildAndroid`/D8 和 GitHub asset publication 的顺序已由 exact dependency source 补齐，并在 graph、artifact/edge tables 和 core entry 中保持一致。 |
+| `MORPHE-P1-004` | **Resolved** | Manager inventory/matrix/artifact/edge/core rows 继续引用 `InstallerManager`、`InstallViewModel`、session/root installers，并明确 `PatcherWorker` 止于 signed output。没有回归。 |
+| `MORPHE-P1-005` | **Resolved** | Artifact 表继续显式记录 Input、Producer、Output artifact、Consumer 和 frozen evidence；edge ledger 继续记录 producer/input/consumer/output。没有回归。 |
+
+### 最终 rubric
+
+| Requirement | Result |
+| --- | --- |
+| 21-repository API inventory, metadata and immutable HEADs | PASS |
+| Every repository exactly once with correct Direct/Supporting/Excluded source edge | PASS |
+| Build/publication ownership and artifact ordering | PASS |
+| Android Manager trace and complete installer ownership | PASS |
+| Desktop trace | PASS |
+| morphe-patcher loader/execution/mutation trace | PASS |
+| Artifact/edge rows and immutable exact paths | PASS |
+| Three required semantic answers | PASS |
+| Failed calls preserved; unknowns gated | PASS |
+| Phase/safety/diff boundary | PASS |
+
+### Reviewer-side checks 与限制
+
+```text
+Authenticated MorpheApp inventory
+public_repos=21 listed=21 unique=21 archived=0
+21/21 default-branch HEADs matched the candidate inventory
+
+Final candidate GitHub URL audit
+all_occurrences=167 unique_urls=83 moving_or_invalid=0 checked=83 failures=0
+
+Recursive tree rechecks
+morphe-patches-template entries=60 truncated=False
+morphe-patches-gradle-plugin entries=42 truncated=False
+morphe-patches entries=2654 truncated=False
+morphe-patches-library entries=104 truncated=False
+changelog entries=21 truncated=False
+morphe-manager entries=627 truncated=False
+morphe-desktop entries=270 truncated=False
+morphe-patcher entries=196 truncated=False
+
+pwsh -NoProfile -File tools/check_documentation.ps1
+Documentation checks passed: 32 Markdown files, 6 ADRs.
+exit=0
+
+pwsh -NoProfile -File tools/sync_upstream_docs.ps1 -Check
+recorded=37b5eeb9c690ea169937fc2bac197bdcdb269014
+upstream=37b5eeb9c690ea169937fc2bac197bdcdb269014
+Official documentation snapshot is current.
+exit=0
+
+git diff --check 0e2dd4394ec853278a74f7456f761bb8cad16ea1 f34f8c827801dfeb3d1bd0c3493e5aaf8de6e6ef
+<no output>
+exit=0
+```
+
+Standards-axis subreview returned PASS, but its sandbox could not complete freshness and its escalation service returned HTTP 403；该结果没有被当作 freshness PASS。上方 freshness output 是本 Reviewer 在本会话独立成功运行的结果。
+
+本 Reviewer 额外尝试以 `npm view gradle-semantic-release-plugin@1.10.3 ...` 读取 registry `gitHead`；sandbox 请求超时，升级审批又因 approval service HTTP 403 被拒。该辅助查询失败不改变 verdict：candidate 的 `package-lock.json` 已固定实际安装 version、tarball URL 与 integrity，任务提供的 `v1.10.3` exact source commit 又由 GitHub tag 和源码版本独立解析成功；本结论没有声称取得 registry `gitHead`。
+
+### 最终 verdict
+
+**PASS**
+
+全部五项历史 Blocking finding 已解决，完整 Phase 1 rubric 通过。该 PASS 只关闭独立 Reviewer 门禁；它不授权 Phase 2、Patch implementation、APK inspection 或 release。是否进入 Phase 2 仍由用户作最终决定。
