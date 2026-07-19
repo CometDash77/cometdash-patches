@@ -66,6 +66,18 @@ if ($wrapperMode -notmatch '^100755 ') {
 } else {
     Add-Pass "gradle_wrapper" "9.6.1"
 }
+$gradleExecutables = @(Get-ChildItem -LiteralPath (Join-Path $env:USERPROFILE ".gradle\wrapper\dists\gradle-9.6.1-bin") `
+    -Filter "gradle.bat" -Recurse -File -ErrorAction SilentlyContinue)
+if ($gradleExecutables.Count -ne 1) {
+    Add-Error "Exactly one executable Gradle 9.6.1 distribution is required in the wrapper cache."
+} else {
+    $gradleVersion = (& $gradleExecutables[0].FullName --version --no-daemon 2>&1 | Out-String)
+    if ($LASTEXITCODE -ne 0 -or $gradleVersion -notmatch 'Gradle 9\.6\.1') {
+        Add-Error "The cached Gradle 9.6.1 distribution did not execute successfully."
+    } else {
+        Add-Pass "gradle_executable" "9.6.1"
+    }
+}
 
 $gradleProperties = Join-Path $env:USERPROFILE ".gradle\gradle.properties"
 $propertyUser = $false
