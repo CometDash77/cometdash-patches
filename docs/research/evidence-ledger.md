@@ -20,7 +20,15 @@
 - Baseline revision: `b1d6602981dff5bd466146eedecfa58dd4cc0944`.
 - Scope: `CHAR-001..005`, `LEARN-000..009`, `EVOT-001..011`, and `ADR-001..006` in the [Decision Authority Map](../specs/project-charter.md#decision-authority-map).
 - Decision: The mapped project charter, learning program, EVOT specification, and ADRs form the complete accepted decision baseline.
-- Boundary: This confirmation does not authorize Phase 1.
+- Boundary: This confirmation did not authorize Phase 1.
+
+### Phase 1 authorization
+
+- Authorized by: Project owner.
+- Authorized at: 2026-07-19（Asia/Hong_Kong）。
+- Documentation Gate review: [`PASS`](./2026-07-18-documentation-gate-review.md) at `2cfccfbc4ab44b81e2b74da0140d01b25fe24f26`.
+- Decision: Phase 1《Morphe 生态架构分析报告》may begin.
+- Boundary: This authorization does not permit Phase 2 or Patch implementation.
 
 ## Fixed upstream revisions
 
