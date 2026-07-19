@@ -7,7 +7,7 @@
 - 执行基线：`dev@0e2dd4394ec853278a74f7456f761bb8cad16ea1`。
 - 清单采集：`2026-07-19T10:02:25+08:00`（`Asia/Hong_Kong`）；后台独立复查时间为 `2026-07-19T10:04:36+08:00`。
 - 组织 API：认证的 `GET /orgs/MorpheApp` 返回 `public_repos=21`；认证的 `GET /orgs/MorpheApp/repos?per_page=100&type=all` 返回 21 行；断言两者相等。21 个仓库均未归档，且默认分支 HEAD 均解析为 40 位 SHA。
-- Source 证据只使用官方仓库的固定 commit 源码、构建/发布配置和 GitHub API metadata；官方开发说明使用本仓库已固定并通过 freshness check 的 [`morphe-documentation@37b5eeb9`](https://github.com/MorpheApp/morphe-documentation/tree/37b5eeb9c690ea169937fc2bac197bdcdb269014) snapshot。
+- Source 证据使用官方仓库的固定 commit 源码、构建/发布配置和 GitHub API metadata；只有追踪固定的直接 release dependency 时才引用该依赖自己的固定源码。官方开发说明使用本仓库已固定并通过 freshness check 的 [`morphe-documentation@37b5eeb9`](https://github.com/MorpheApp/morphe-documentation/tree/37b5eeb9c690ea169937fc2bac197bdcdb269014) snapshot。
 - 架构或行为结论必须落到 `blob/<40-sha>/<path>` 或 `tree/<40-sha>/<path>`。README 只用于官方入口说明，不替代可用的实现源码。
 - 未找到的边、失败请求和无法从一手源码确认的事实分别记录为 `Excluded`、failed check 或 `Unverified`，不由仓库名、网页描述或推测补齐。
 
@@ -71,39 +71,45 @@ Manager 的 [`app/build.gradle.kts`](https://github.com/MorpheApp/morphe-manager
 flowchart LR
     A["Patch definitions + extension source"] --> B["SettingsPlugin / ExtensionPlugin"]
     B --> C[".mpe extension DEX"]
-    A --> D["PatchesPlugin buildAndroid"]
-    C --> D
-    D --> E[".mpp bundle: JVM classes + DEX + manifest"]
-    E --> F["semantic-release prepare"]
-    F --> G["prepare step 1: changelog.prepare"]
-    G --> GB["patches-bundle.json"]
-    G -->|"plugin order; no JSON data dependency"| H["prepare step 2: exec prepareCmd + PatchListGenerator"]
-    E --> H
-    H --> HB["patches-list.json"]
-    GB --> I["git plugin commits release metadata"]
-    HB --> I
-    I --> J["GitHub plugin publishes release"]
-    E --> J
+    S["semantic-release prepare"] --> D["1 changelog.prepare"]
+    D --> DB["patches-bundle.json"]
+    D --> E["2 Gradle plugin prepare: update/verify version"]
+    E --> F["3 exec prepareCmd: generatePatchesList"]
+    A --> G["Gradle build"]
+    C --> G
+    F --> G
+    G --> H["JVM .mpp: classes + manifest, no Android DEX"]
+    H --> I["PatchListGenerator loads JVM .mpp"]
+    I --> IB["patches-list.json"]
+    DB --> J["git plugin commits release metadata"]
+    IB --> J
+    J --> K["semantic-release publish"]
+    K --> L["Gradle plugin invokes Gradle publish"]
+    L --> M["publish dependsOn buildAndroid"]
+    H --> M
+    M --> N["D8 merges Android DEX into .mpp"]
+    N --> O["complete Android .mpp"]
+    O --> P["GitHub plugin uploads Release asset"]
 
-    W["morphe-website Source onboarding handoff"] --> K["Android Manager Source normalization / metadata fetch"]
-    I --> K
-    I --> L["Desktop RemotePatchSource metadata fetch"]
-    J --> M["download .mpp -> patches.jar"]
-    K --> M
-    J --> N["Desktop download .mpp"]
-    L --> N
-    M --> O["loadPatchesFromDex + Android selection"]
-    N --> P["loadPatchesFromJar + Desktop selection"]
-    O --> Q["morphe-patcher PatcherContext"]
-    P --> Q
-    R["Original APK"] --> Q
-    Q --> S["Patched DEX/resources"]
-    S --> T["applyTo copy of original APK"]
-    T --> U["Signed/output APK"]
-    U --> V["Manager installers"]
-    U --> X["morphe-library AdbInstaller via Desktop CLI"]
-    V --> Y["Install result"]
+    W["morphe-website Source onboarding handoff"] --> Q["Android Manager Source normalization / metadata fetch"]
+    J --> Q
+    J --> R["Desktop RemotePatchSource metadata fetch"]
+    P --> T["download .mpp -> patches.jar"]
+    Q --> T
+    P --> U["Desktop download .mpp"]
+    R --> U
+    T --> V["loadPatchesFromDex + Android selection"]
+    U --> X["loadPatchesFromJar + Desktop selection"]
+    V --> Y["morphe-patcher PatcherContext"]
     X --> Y
+    APK["Original APK"] --> Y
+    Y --> Z["Patched DEX/resources"]
+    Z --> AA["applyTo copy of original APK"]
+    AA --> AB["Signed/output APK"]
+    AB --> AC["Manager installers"]
+    AB --> AD["morphe-library AdbInstaller via Desktop CLI"]
+    AC --> AE["Install result"]
+    AD --> AE
 ```
 
 ## 6. Artifact 与逐边数据流
@@ -114,9 +120,10 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | 用户填写的 owner/repo/name、blocklist response，或直接 repository/JSON URL | 用户/配置；website `add-source.js` | Source URL 或 `morphe.software/add-source` handoff | Manager `MainActivity` -> `normalizeRemoteBundleUrl`; Desktop `RemotePatchSourceFactory.parse` | Source 是 metadata/asset 的定位入口，不是 APK。证据：website [`add-source.js`](https://github.com/MorpheApp/morphe-website/blob/57a6d8cb9541101d09fc73fef8c1e0c3304e7dc7/public/js/add-source.js)、Manager [`MainActivity.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/MainActivity.kt) 与 [`PatchBundleRepository.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/domain/repository/PatchBundleRepository.kt)、Desktop [`RemotePatchSourceFactory.kt`](https://github.com/MorpheApp/morphe-desktop/blob/2f5ce39adc26d4b3e7debe44445eddcaf887bffa/src/main/kotlin/app/morphe/engine/patches/RemotePatchSourceFactory.kt)。 |
 | semantic-release version、notes 与 release config | `changelog.prepare` | `patches-bundle.json` | Manager `JsonPatchBundle.getLatestInfo`; Desktop `fetchLatestFromManifest` | 包含 version、description、`.mpp` download URL 等 release metadata；不是 Patch executable。证据：[`prepare.js`](https://github.com/MorpheApp/changelog/blob/caa1e931730f097bb6c4dee636b01c2c24ccd72d/lib/prepare.js)、template [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc)。 |
-| 已构建 `.mpp` 的 Patch reflection 与 manifest | `PatchListGenerator` | `patches-list.json` | README/third-party tooling；本次未发现 Manager/Desktop runtime consumer | Patch 名称、默认值、dependency、compatibility、option 的发布清单。证据：shared [`PatchListGenerator.kt`](https://github.com/MorpheApp/morphe-patches-library/blob/9e555a2273533ef13e51db70a55d3fd544752756/patch-library/src/main/kotlin/app/morphe/util/PatchListGenerator.kt)。 |
-| Patch classes、extension `.mpe` 与 Gradle runtime classpath | `PatchesPlugin.configureJarTask` + `buildAndroid` | `.mpp` | Manager/Desktop Patch loader | ZIP/JAR container，包含 JVM class、manifest、extension `.mpe` resources 和 Android DEX；不是 APK。证据：[`PatchesPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt)。 |
-| `.mpp` 的 JAR classes 或 embedded DEX | Patcher `PatchLoader.Jar`/`.Dex` | Loaded `Patch` objects | Manager/Desktop selection、`Patcher.plusAssign` | 只反射 public static field 或 public static zero-arg method 暴露且 name 非空的 Patch；metadata 含 dependency、compatibility 与 options。证据：[`Patch.kt`](https://github.com/MorpheApp/morphe-patcher/blob/b69536fd33b69a1d1b2643068941f1052cf51708/src/main/kotlin/app/morphe/patcher/patch/Patch.kt)、Manager [`PatchBundle.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/patcher/patch/PatchBundle.kt)。 |
+| Gradle `build` 产生的 JVM `.mpp`（JVM classes + manifest，无 embedded Android DEX） | `PatchListGenerator` | `patches-list.json` | README/third-party tooling；本次未发现 Manager/Desktop runtime consumer | `generatePatchesList` 依赖普通 `build`，随后从 `build/libs/*.mpp` 反射 Patch 与读取 manifest；该阶段不要求最终 Android DEX。证据：template [`patches/build.gradle.kts`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/patches/build.gradle.kts)、shared [`PatchListGenerator.kt`](https://github.com/MorpheApp/morphe-patches-library/blob/9e555a2273533ef13e51db70a55d3fd544752756/patch-library/src/main/kotlin/app/morphe/util/PatchListGenerator.kt)。 |
+| Patch classes、extension `.mpe` 与 Gradle runtime classpath | `PatchesPlugin.configureJarTask` + Gradle `build` | JVM `.mpp`（classes + manifest，无 embedded Android DEX） | `PatchListGenerator`；后续 `buildAndroid` | `.mpp` 先作为 JVM-readable ZIP/JAR 生成；不是 APK。证据：[`PatchesPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt)。 |
+| JVM `.mpp` + compile/runtime classpath | semantic-release publish -> Gradle plugin `publish` -> `buildAndroid`/D8 | Complete Android `.mpp`（JVM classes + manifest + extension resources + embedded DEX） | GitHub release plugin；Manager/Desktop Patch loader | Gradle release plugin 只在 publish hook 调用 Gradle `publish`；Morphe plugin 令 `publish` 依赖 `buildAndroid`，再把 DEX 合入同一 archive。证据：fixed release plugin [`publish.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/publish.ts) 与 [`gradle.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/gradle.ts)、Morphe [`PatchesPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt)。 |
+| Complete Android `.mpp` 的 JAR classes 或 embedded DEX | Patcher `PatchLoader.Jar`/`.Dex` | Loaded `Patch` objects | Manager/Desktop selection、`Patcher.plusAssign` | 只反射 public static field 或 public static zero-arg method 暴露且 name 非空的 Patch；metadata 含 dependency、compatibility 与 options。证据：[`Patch.kt`](https://github.com/MorpheApp/morphe-patcher/blob/b69536fd33b69a1d1b2643068941f1052cf51708/src/main/kotlin/app/morphe/patcher/patch/Patch.kt)、Manager [`PatchBundle.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/patcher/patch/PatchBundle.kt)。 |
 | 用户选择的 local/installed app | 用户/host selection | Original APK target | Manager `Session`; Desktop `PatchEngine`; Patcher | 原 APK 只作为 target input；host 复制后才应用 mutation result。证据：Manager [`Session.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/patcher/Session.kt)、Desktop [`PatchEngine.kt`](https://github.com/MorpheApp/morphe-desktop/blob/2f5ce39adc26d4b3e7debe44445eddcaf887bffa/src/main/kotlin/app/morphe/engine/PatchEngine.kt)。 |
 | `PatcherResult` + copied original APK | `ApkUtils.applyTo` | Transformed/re-aligned APK | host signer | 替换/增加资源、删除 staged entries、写 patched DEX 并 realign。证据：[`ApkUtils.kt`](https://github.com/MorpheApp/morphe-patcher/blob/b69536fd33b69a1d1b2643068941f1052cf51708/src/main/kotlin/app/morphe/patcher/apk/ApkUtils.kt)。 |
 | Transformed APK + keystore/signing config | Manager `KeystoreManager.sign`; Desktop `PatchEngine.patch` | Signed/output APK | export 或 installer selection | Patcher signing primitive 产生 signed file，host 决定最终输出路径。证据：Manager [`KeystoreManager.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/domain/manager/KeystoreManager.kt)、Desktop [`PatchEngine.kt`](https://github.com/MorpheApp/morphe-desktop/blob/2f5ce39adc26d4b3e7debe44445eddcaf887bffa/src/main/kotlin/app/morphe/engine/PatchEngine.kt)。 |
@@ -128,10 +135,14 @@ flowchart LR
 | --- | --- | --- | --- | --- |
 | template settings | plugin id/version | `SettingsPlugin.apply` | included patches/extensions projects | [`settings.gradle.kts`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/settings.gradle.kts) -> [`SettingsPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/SettingsPlugin.kt) |
 | extension source | Android release DEX | `ExtensionPlugin.configureArtifactSharing` | `.mpe` resource tree | [`ExtensionPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/ExtensionPlugin.kt) |
-| Patch classes + `.mpe` | Gradle runtime classpath | `PatchesPlugin.configureJarTask` / `configurePublishing` | manifest-bearing `.mpp` with DEX | [`PatchesPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt) |
-| `.mpp` | Patch reflection + manifest | `PatchListGenerator.main` | `patches-list.json` | [`PatchListGenerator.kt`](https://github.com/MorpheApp/morphe-patches-library/blob/9e555a2273533ef13e51db70a55d3fd544752756/patch-library/src/main/kotlin/app/morphe/util/PatchListGenerator.kt) |
 | semantic-release notes/version | release template | `prepare` | `patches-bundle.json` | [`prepare.js`](https://github.com/MorpheApp/changelog/blob/caa1e931730f097bb6c4dee636b01c2c24ccd72d/lib/prepare.js) |
-| generated metadata + `.mpp` | release commit/artifact | semantic-release Git/GitHub plugins | branch metadata + GitHub Release asset | template [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc), [`release.yml`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.github/workflows/release.yml) |
+| semantic-release next version | existing `gradle.properties` | Gradle release plugin `prepare` | updated and verified Gradle version | template [`package-lock.json`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/package-lock.json), fixed dependency [`prepare.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/prepare.ts) |
+| Patch classes + `.mpe` | Gradle runtime classpath | `PatchesPlugin.configureJarTask` / Gradle `build` | JVM `.mpp` without embedded Android DEX | [`PatchesPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt), template [`patches/build.gradle.kts`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/patches/build.gradle.kts) |
+| JVM `.mpp` | Patch reflection + manifest | `PatchListGenerator.main` during exec prepare | `patches-list.json` | [`PatchListGenerator.kt`](https://github.com/MorpheApp/morphe-patches-library/blob/9e555a2273533ef13e51db70a55d3fd544752756/patch-library/src/main/kotlin/app/morphe/util/PatchListGenerator.kt), template [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc) |
+| generated JSON/README/version metadata | release commit assets | semantic-release Git plugin | branch metadata commit | template [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc) |
+| semantic-release publish context | Gradle publish-task discovery | Gradle release plugin `publish` | Gradle `publish` execution | fixed dependency [`publish.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/publish.ts), [`gradle.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/gradle.ts) |
+| JVM `.mpp` + compile/runtime classpath | Gradle `publish` | `PatchesPlugin.buildAndroid` / D8 | complete Android `.mpp` with embedded DEX | [`PatchesPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt) |
+| complete Android `.mpp` | release asset configuration | semantic-release GitHub plugin | GitHub Release `.mpp` asset | template [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc), [`release.yml`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.github/workflows/release.yml) |
 | website Source form | owner/repo/name + blocklist response | `add-source.js` -> Manager App Link / `MainActivity` | `pendingDeepLinkSource` onboarding request | website [`add-source.js`](https://github.com/MorpheApp/morphe-website/blob/57a6d8cb9541101d09fc73fef8c1e0c3304e7dc7/public/js/add-source.js), Manager [`AndroidManifest.xml`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/AndroidManifest.xml), [`MainActivity.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/MainActivity.kt) |
 | Source input | repo/direct JSON URL | Manager `normalizeRemoteBundleUrl` | HTTPS metadata endpoint | [`PatchBundleRepository.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/domain/repository/PatchBundleRepository.kt) |
 | metadata endpoint | JSON | `JsonPatchBundle.getLatestInfo` | `MorpheAsset` | [`RemotePatchBundle.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/domain/bundles/RemotePatchBundle.kt) |
@@ -158,15 +169,15 @@ flowchart LR
 | --- | --- |
 | Purpose | 将 Patch definition 和 Android extension source 变为可被 host 发现、下载和执行的 versioned Patch Bundle。 |
 | Problem solved | 把 authoring、Android DEX、runtime-provided Patcher API、发布 metadata 与 release asset 分开，避免发布 modified APK。 |
-| Files | template `settings.gradle.kts`, `patches/build.gradle.kts`, `PatchListGenerator.kt`, `.releaserc`, `release.yml`; plugin `SettingsPlugin.kt`, `ExtensionPlugin.kt`, `PatchesPlugin.kt`; changelog `prepare.js`. |
-| Revision | template `93ade63a...`; plugin `52be641e...`; official patches `e12088c...`; patches-library `9e555a22...`; changelog `caa1e931...`. |
+| Files | template `settings.gradle.kts`, `patches/build.gradle.kts`, `PatchListGenerator.kt`, `package-lock.json`, `.releaserc`, `release.yml`; Morphe plugin `SettingsPlugin.kt`, `ExtensionPlugin.kt`, `PatchesPlugin.kt`; changelog `prepare.js`; fixed Gradle release dependency `prepare.ts`, `publish.ts`, `gradle.ts`. |
+| Revision | template `93ade63a...`; Morphe plugin `52be641e...`; official patches `e12088c...`; patches-library `9e555a22...`; changelog `caa1e931...`; `gradle-semantic-release-plugin@1.10.3` tag commit `75037a67...`. |
 | Small source example | `PatchesPlugin.configureJarTask` sets `archiveExtension` to `mpp`; `buildAndroid` runs D8 then merges DEX into the same archive. |
 | Common mistake | 把 `.mpp` 当成 APK，或认为 `patches-list.json` 是 Manager 的 executable input；实际 executable 是 `.mpp`，discovery metadata 是 `patches-bundle.json`。 |
 | Practical application | CometDash 应复用 template/plugin/release contract，发布自己的 `.mpp` 与两个 JSON；不得上传 modified YouTube APK。 |
 
 细节：`SettingsPlugin` 自动 include extension/patch projects；`ExtensionPlugin.syncExtension` 把 release DEX 重命名为 `.mpe`；`PatchesPlugin.configureConsumeExtensions` 将 `.mpe` 作为 resource 注入 Patch archive。`PatchesPlugin` 把 `morphe-patcher` 和 smali 标为 runtime-provided，不将其重复打入 `.mpp`；manifest 写入 Source/author/version 和 `Patcher-Version`。official patches 的 generator 来自 `morphe-patches-library`，由 [`patches/build.gradle.kts`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/patches/build.gradle.kts) 的 `mainClass=app.morphe.util.PatchListGeneratorKt` 调用。
 
-template [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc) 先由 `@MorpheApp/changelog` 写 `patches-bundle.json`，再运行 Gradle generator/版本替换，commit metadata，并把 `patches-*.mpp` 上传 GitHub Release。official [`morphe-patches/.releaserc`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/.releaserc) 使用相同 artifact contract。
+template [`.releaserc`](https://github.com/MorpheApp/morphe-patches-template/blob/93ade63a00a4b5954c63af78dbd9d8e6ec4f95fe/.releaserc) 的 prepare plugin 顺序是 `@MorpheApp/changelog`、`gradle-semantic-release-plugin`、`@semantic-release/exec`、`@semantic-release/git`：先写 `patches-bundle.json`，再由固定依赖的 [`prepare.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/prepare.ts) 更新/核对 `gradle.properties` version，随后 `generatePatchesList` 依赖普通 Gradle `build`，从尚未嵌入 Android DEX 的 JVM `.mpp` 生成 `patches-list.json`，最后 commit metadata。进入 semantic-release publish lifecycle 后，固定依赖的 [`publish.ts`](https://github.com/KengoTODA/gradle-semantic-release-plugin/blob/75037a67e3729787c38d2374bab528233ddddaec/src/publish.ts) 才调用 Gradle `publish`；Morphe [`PatchesPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt) 令它依赖 `buildAndroid`，由 D8 把 Android DEX 合入同一 `.mpp`，之后 GitHub plugin 上传完整 release asset。official [`morphe-patches/.releaserc`](https://github.com/MorpheApp/morphe-patches/blob/e12088c89942f5d637a824ce81643a28b86fb851/.releaserc) 使用相同 artifact contract。
 
 ### 7.2 Android Manager
 
