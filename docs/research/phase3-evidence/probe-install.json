@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "probe": {
+    "patchCount": 1,
+    "artifactBytes": 9821,
+    "artifactSha256": "bcedfa996c53ef8f47216ba55f5b6553e4e1beca94cbeb35925dc9d358dc2779",
+    "reviewVerdict": "PASS",
+    "blockingFindings": 0,
+    "productPathsChanged": false
+  },
+  "desktop": {
+    "revision": "2f5ce39adc26d4b3e7debe44445eddcaf887bffa",
+    "treeSha": "908c2ab5910a3adcd02b6e6dd48cc0d1d862ff5b",
+    "archiveBytes": 10753027,
+    "archiveSha256": "3fe0bc2c36876d579cb7c90f4a3fd8f7f78153dac946adb2b51e07301fec91ab",
+    "archiveEntries": 271,
+    "buildTask": "clean shadowJar",
+    "buildExitCode": 0,
+    "jarBytes": 117967075,
+    "jarSha256": "a21904e0793717b51bcbb8ccf0d22ee107793abec24863dfd2b0d5d11b998af7",
+    "mainClass": "app.morphe.MorpheLauncherKt",
+    "cliHelpExitCode": 0
+  },
+  "patching": {
+    "parseFailureExitCode": 2,
+    "successfulExitCode": 0,
+    "packageName": "com.google.android.youtube",
+    "versionName": "21.04.223",
+    "versionCode": 1561052632,
+    "appliedPatchCount": 1,
+    "failedPatchCount": 0,
+    "patchingStepPassed": true,
+    "rebuildingStepPassed": true,
+    "signingStepPassed": true,
+    "outputBytes": 173137343,
+    "outputSha256": "8b75b93ec26de72da4a47b45b072b645e6e0d68487d3b7e2e7f03be9e405168c",
+    "outputSignerSha256": "9bb036dbd7cbeb756a2d42571d67995820be67f5ba9a2abe6624a5212cb4f1db",
+    "patchResultSha256": "6fbb433a7f061c50bd469b0edcdb5c7a0d03609176cc8a4eb38ab64a409195b4"
+  },
+  "installation": {
+    "image": "system-images;android-35;default;x86_64",
+    "api": 35,
+    "abi": "x86_64",
+    "qemuVerified": true,
+    "physicalTransportPresent": false,
+    "packagePresentBefore": false,
+    "installExitCode": 0,
+    "installReportedSuccess": true,
+    "replaceUsed": false,
+    "uninstallUsed": false,
+    "packagePresentAfter": true,
+    "installedVersionName": "21.04.223",
+    "installedVersionCode": 1561052632,
+    "serialSha256": "603ebee38d02b4f605927ac562cc9b565b5ca83ba353f50d295dfe68a124d485",
+    "adbInstallLogSha256": "c4aa470acafcf8576c15b0f0b5ae7e852d1ec5413372d0e6a9272e788e1306d3"
+  },
+  "runtimeClaims": {
+    "appLaunched": false,
+    "youtubeSupported": false
+  }
+}

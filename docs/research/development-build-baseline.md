@@ -73,3 +73,33 @@ Both archives contained the same 13 entries in the same order. Twelve entries, i
 Static inspection found only the list generator/model classes and no Patch implementation class. A disposable-worktree run of `:patches:generatePatchesList` exercised `loadPatchesFromJar` and produced `patch_count=0`; the generated tracked metadata file was restored and the worktree returned clean. An initial offline loader attempt failed while applying the Gradle plugin with an unclassified `IllegalArgumentException`; the credentialed attempt passed, so the offline-cache behavior remains a non-gating failed check.
 
 The earlier Build A attempt failed at Morphe plugin resolution before the replacement package credential existed. The earlier Build B attempt failed while downloading Gradle through the wrapper. A comparison worker produced entry-level CSV evidence but stalled during loader verification and was interrupted; the coordinator independently completed the loader proof. None of these failures is rewritten as a successful attempt.
+
+## 6. Development-only no-op probe
+
+The standalone project under `tools/probes/phase3-noop` declares exactly one non-default `resourcePatch` named `Phase 3 no-op Patch probe`. It has one compatibility record: `com.google.android.youtube`, APK required, version `21.04.223`, minimum SDK 28, and the two verified input signer digests. Its Patch body is empty and it declares no execute/finalize hook, extension, dependency, option, bytecode Patch, or raw-resource mechanism.
+
+The build-time verifier loaded exactly one Patch and checked the complete compatibility contract. The integrated checker built a 9,821-byte bundle with SHA-256 `bcedfa996c53ef8f47216ba55f5b6553e4e1beca94cbeb35925dc9d358dc2779`. A fresh Terra review returned `PASS` with no Blocking findings; its one non-blocking finding about product-path comparison against `HEAD` was resolved by checking `PHASE3_BASE_SHA..HEAD`. The probe changes only `tools/` and is absent from product modules, generated Source metadata, README patch listings, and `main`.
+
+## 7. Patch, sign, and disposable-emulator install
+
+Structured results are committed in [`probe-install.json`](./phase3-evidence/probe-install.json).
+
+### 7.1 Frozen Desktop host
+
+GitHub's commit API resolved `morphe-desktop@2f5ce39adc26d4b3e7debe44445eddcaf887bffa` to tree `908c2ab5910a3adcd02b6e6dd48cc0d1d862ff5b`. Git clone, fixed-SHA fetch, direct codeload, and BITS attempts failed through timeout, connection reset, a shallow-lock race, or a zero-byte Game Mode transfer. The project owner supplied the official fixed-SHA archive; it contained 271 entries under the expected sole root, was 10,753,027 bytes, and had local SHA-256 `3fe0bc2c36876d579cb7c90f4a3fd8f7f78153dac946adb2b51e07301fec91ab`. It is source-equivalent fixed content without local Git metadata.
+
+The first `shadowJar` continuation reached the task but did not exit; its observed 3,863,661-byte JAR lacked `Main-Class` and failed `java -jar --help`, so it was rejected as incomplete. After the dependency cache was populated, a coordinator-run `clean shadowJar` exited `0` in 44 seconds. The final `morphe-desktop-1.11.0-all.jar` was 117,967,075 bytes, SHA-256 `a21904e0793717b51bcbb8ccf0d22ee107793abec24863dfd2b0d5d11b998af7`, declared `app.morphe.MorpheLauncherKt`, and returned CLI help with exit `0`.
+
+### 7.2 Patch and signing result
+
+The first CLI attempt passed the Patch name through a process argument containing spaces; it was split and failed parsing with exit `2` before creating output, result, or key material. Because the bundle verifier proves cardinality one, the corrected attempt used Patch index zero with exclusive selection.
+
+The corrected Desktop run exited `0` and reported package `com.google.android.youtube`, version `21.04.223`, one applied `Phase 3 no-op Patch probe`, zero failed Patches, and successful PATCHING, REBUILDING, and SIGNING steps. The signed output was 173,137,343 bytes with SHA-256 `8b75b93ec26de72da4a47b45b072b645e6e0d68487d3b7e2e7f03be9e405168c`; Android Build Tools re-read version code `1561052632` and version name `21.04.223`. APK signature verification passed v3 with certificate SHA-256 `9bb036dbd7cbeb756a2d42571d67995820be67f5ba9a2abe6624a5212cb4f1db`.
+
+### 7.3 Emulator installation
+
+A fresh Android 35 `default/x86_64` AOSP AVD ran headless with wipe-data and snapshots disabled. Before installation there was exactly one emulator transport, `ro.kernel.qemu=1`, no physical transport, and no `com.google.android.youtube` package. Evidence records only serial SHA-256 `603ebee38d02b4f605927ac562cc9b565b5ca83ba353f50d295dfe68a124d485`.
+
+One explicit-target `adb install` without replace or uninstall behavior exited `0` and returned success. The harness then incorrectly treated the first non-success line in its output array as failure; no second install was attempted. A read-only package-manager postcheck found the package and verified version `21.04.223` / code `1561052632`. The app was not launched, so startup, Google service behavior, Patch runtime behavior, and YouTube support remain unverified.
+
+Temporary signing material and patch scratch data are deleted after evidence capture. The signed APK and redacted raw logs remain outside Git only until independent review, then are deleted with the disposable AVD.
