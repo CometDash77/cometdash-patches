@@ -48,6 +48,16 @@
 - Context boundary: use the final Phase 1 artifacts and fixed sources as inputs; do not import prior chat reasoning by default. Read historical `BLOCKED` sections only for audit or regression analysis.
 - Scope boundary: authorization covers Phase 2 source research and planning only. It does not authorize Patch implementation, APK inspection, Phase 3 work, release, or an APK support claim.
 
+### Phase 2 completion gate
+
+- Approved by: Project owner.
+- Approved at: `2026-07-19T14:07:09+08:00`（`Asia/Hong_Kong`）。
+- Accepted candidate: [`Phase 2 Official Voice Over Translation source research`](./official-voice-over-translation.md) at `38192e17f86fd03c60e9d7545d292be49dee9ead`.
+- Independent review: final [`PASS`](./2026-07-19-official-voice-over-translation-review.md#verdict) at `53a402a8618a5f54392b5d330da439912a2e3c48`.
+- Finding status: no Blocking or Non-blocking candidate findings.
+- Decision: Phase 2 is accepted and complete.
+- Boundary: This approval does not authorize Phase 3, APK inspection, Patch implementation, release, or a YouTube `21.04.223` support claim.
+
 ## Fixed upstream revisions
 
 | Project | Revision | Evidence use |
