@@ -6,9 +6,7 @@ endorsed, or supported by the Morphe project.
 ## Patches
 
 <!-- PATCHES_START EXPANDED -->
-
-No stable patches have been released yet.
-
+> **[v1.0.0-dev.1](https://github.com/CometDash77/cometdash-patches/releases/tag/v1.0.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;0 patches total
 <!-- PATCHES_END -->
 
 ## Add Source
