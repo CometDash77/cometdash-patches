@@ -114,6 +114,16 @@
 - Exact-hook status: not run after the earlier mandatory mutual-exclusion check blocked; Phase 3 static evidence remains the current limit.
 - Decision: **BLOCKED**. The accepted requirement that EVOT and official Voice over translation cannot be selectable together cannot be implemented with the fixed Morphe interfaces. Phase 4 Tickets 3-9 must not begin until Morphe gains a verified cross-Bundle conflict contract or the project owner revises the accepted requirement through a new reviewed decision.
 
+### Phase 4 coexistence-fallback planning request
+
+- Requested by: Project owner.
+- Requested at: `2026-07-19` (`Asia/Hong_Kong`).
+- Direction: prepare fallback option 2 and persist a fresh-Agent continuation entrypoint.
+- Feasibility correction: the fixed interfaces cannot provide the earlier conversationally proposed pre-patch warning/block. The implementable candidate is an EVOT runtime activation guard that fails closed when a verified official-VoT presence marker exists.
+- Proposal: [`Phase 4 Official-VoT Coexistence Fallback Proposal`](../superpowers/plans/2026-07-19-phase4-coexistence-fallback.md).
+- Handoff: [`Phase 4 Fresh-Agent Handoff`](./phase4-next-agent-handoff.md).
+- Authority status: proposal only. The accepted EVOT specification, ADR 0002, Agent rule, and Phase 4 Blocking verdict remain unchanged pending independent review and explicit project-owner acceptance of the corrected runtime-only contract.
+
 ## Fixed upstream revisions
 
 | Project | Revision | Evidence use |
