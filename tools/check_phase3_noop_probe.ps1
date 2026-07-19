@@ -1,6 +1,7 @@
 param(
     [string]$OutputRoot = "C:\tmp\phase3-noop-probe",
-    [string]$BaseSha = "13e08ab9251ab8a6787e1ac3e08c8709eb8dc52d"
+    [string]$ProbeBaseSha = "6b4229de38d1d42aab85a121d71a847f2a7ae615",
+    [string]$ProbeTipSha = "b5988c5e6f37aa78a975370156593025783cc832"
 )
 
 $ErrorActionPreference = "Stop"
@@ -31,8 +32,10 @@ if ($patchContent -match 'extendWith|execute\s*\{|finalize\s*\{|BytecodePatch|Ra
 Require-Match $verifierContent 'patches\.size == 1' "Runtime verifier must check Patch loader cardinality."
 
 $forbidden = @("patches", "extensions", "patches-bundle.json", "patches-list.json", "README.md")
+git -C $repoRoot merge-base --is-ancestor $ProbeBaseSha $ProbeTipSha
+if ($LASTEXITCODE -ne 0) { throw "Probe commit range is missing or invalid." }
 foreach ($path in $forbidden) {
-    $changes = @(git -C $repoRoot diff --name-only "$BaseSha..HEAD" -- $path)
+    $changes = @(git -C $repoRoot diff --name-only "$ProbeBaseSha..$ProbeTipSha" -- $path)
     if ($changes.Count -gt 0) { throw "Probe changed forbidden product path: $($changes -join ', ')" }
 }
 $mainProbePaths = @(git -C $repoRoot ls-tree -r --name-only main -- tools/probes/phase3-noop)
