@@ -6,7 +6,7 @@ This candidate records the Phase 3 development baseline for `dev` without implem
 
 - Phase 3 base: `13e08ab9251ab8a6787e1ac3e08c8709eb8dc52d`.
 - Plan commit: `5ecc000558ed3fc69df5dd5a1b73d1021b98cc8d`.
-- Status: candidate ready for independent review; the review, compromised-token revocation confirmation, and user gate remain open.
+- Status: candidate ready for independent review; the review and user gate remain open.
 
 ## 2. Entry and toolchain evidence
 
@@ -17,7 +17,7 @@ This candidate records the Phase 3 development baseline for `dev` without implem
 | Gradle | Wrapper and executable `9.6.1`; official 140,682,664-byte distribution matched pinned SHA-256 `9c0f7faeeb306cb14e4279a3e084ca6b596894089a0638e68a07c945a32c9e14`. | Local tool observation; later builds prove dependency/configuration behavior. |
 | JADX | Official `1.5.6` archive, 72,646,741 bytes, matched SHA-256 `545ea2be9c242511bc145755cf4bda2485ade42966e096f8b4d3da2a230e8974`. | Official release artifact plus local checksum. |
 | Android | ADB `37.0.0`, accelerated emulator available, Android 35 `default/x86_64` pure AOSP image installed. | Local tool observation; no AVD/install claim yet. |
-| Package credentials | One complete process-local GitHub credential pair returned HTTP `200` for the pinned Morphe package without exposing values. | Package-resolution evidence only; compromised-token revocation confirmation remains open. |
+| Package credentials | One complete process-local GitHub credential pair returned HTTP `200` for the pinned Morphe package without exposing values. The project owner later confirmed the compromised setup credential was revoked. | Package-resolution and owner-confirmation evidence; no credential value is retained. |
 
 The first JADX transfer timed out and an interrupted resume left two writers on one partial file; both processes and the partial file were discarded. A single BITS transfer then produced the verified archive. Gradle wrapper downloads failed first at 10 seconds and later after four bounded attempts because of resets/timeouts; a single BITS transfer from the same official URL produced the wrapper-checksum-matching distribution. These are preserved local transport failures, not upstream artifact failures.
 
@@ -119,4 +119,4 @@ The candidate gate run completed with these results:
 
 The no-op bundle's top-level SHA-256 is expected to vary with generated archive timestamps; its verifier checks the loaded Patch contract instead of treating the archive hash as a reproducibility identity. Structured evidence is in [`toolchain-apk.json`](./phase3-evidence/toolchain-apk.json), [`empty-builds.json`](./phase3-evidence/empty-builds.json), and [`probe-install.json`](./phase3-evidence/probe-install.json).
 
-Independent review has not yet occurred. The project owner must also confirm that the credential exposed during the earlier setup mistake has been revoked. Phase 3 is not complete, Phase 4 remains blocked, and this report makes no YouTube support or runtime behavior claim.
+Independent review has not yet occurred. On `2026-07-19` (`Asia/Tokyo`), the project owner explicitly confirmed that the credential exposed during the earlier setup mistake had been revoked. Phase 3 is not complete, Phase 4 remains blocked, and this report makes no YouTube support or runtime behavior claim.

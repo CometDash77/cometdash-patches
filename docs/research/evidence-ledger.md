@@ -76,7 +76,8 @@
 - Candidate report: [`Phase 3 Development and Build Baseline`](./development-build-baseline.md).
 - Evidence packets: [`toolchain-apk.json`](./phase3-evidence/toolchain-apk.json), [`empty-builds.json`](./phase3-evidence/empty-builds.json), and [`probe-install.json`](./phase3-evidence/probe-install.json).
 - Automated gates: preflight, no-op probe, documentation, upstream freshness, repository postflight, and Git integrity passed before the candidate commit.
-- Open gates: independent review, explicit confirmation that the compromised setup credential was revoked, and project-owner acceptance.
+- Credential recovery: on `2026-07-19` (`Asia/Tokyo`), the project owner explicitly confirmed that the compromised setup credential was revoked; no credential value is recorded.
+- Open gates: independent review and project-owner acceptance.
 - Decision: candidate is ready for independent review only. Phase 3 is not complete and Phase 4 remains blocked.
 
 ## Fixed upstream revisions
