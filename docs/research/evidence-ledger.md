@@ -58,6 +58,17 @@
 - Decision: Phase 2 is accepted and complete.
 - Boundary: This approval does not authorize Phase 3, APK inspection, Patch implementation, release, or a YouTube `21.04.223` support claim.
 
+### Phase 3 authorization and entry gate
+
+- Authorized by: Project owner.
+- Authorized at: `2026-07-19T16:10:52+09:00` (`Asia/Tokyo`).
+- Accepted plan: [`Phase 3 Development and Build Baseline Plan`](../superpowers/plans/2026-07-19-morphe-phase-3.md) at `5ecc000558ed3fc69df5dd5a1b73d1021b98cc8d`.
+- Accepted Phase 2 input: `8a2469ae3fb36730fc9ebf2a9b7ace1b846b440b`.
+- Entry failures: workflow `29676400093` exposed an invalid prerelease-only semantic-release branch topology; workflow `29676512098` then exposed `gradlew` mode `100644` on Linux. The failures remain audit evidence.
+- Phase 3 base: `13e08ab9251ab8a6787e1ac3e08c8709eb8dc52d`; workflow `29676589428` completed successfully.
+- Decision: Phase 3 toolchain, empty Source, exact-APK static inspection, dev-only no-op Patch, signing, and disposable-AOSP-emulator installation work may begin.
+- Boundary: no EVOT product implementation, official VoT installation, physical-device mutation, `main` change, stable release, support claim, or Phase 4 authorization.
+
 ## Fixed upstream revisions
 
 | Project | Revision | Evidence use |
