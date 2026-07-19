@@ -38,9 +38,25 @@
 | [morphe-documentation](https://github.com/MorpheApp/morphe-documentation/tree/37b5eeb9c690ea169937fc2bac197bdcdb269014) | `37b5eeb9c690ea169937fc2bac197bdcdb269014` | Official setup and ecosystem documentation snapshot |
 | [morphe-patches](https://github.com/MorpheApp/morphe-patches/tree/e12088c89942f5d637a824ce81643a28b86fb851) | `e12088c89942f5d637a824ce81643a28b86fb851` | Voice over translation v1.35.0 implementation |
 | [morphe-manager](https://github.com/MorpheApp/morphe-manager/tree/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948) | `a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948` | Patch Source URL normalization and bundle download behavior |
+| [morphe-patches-gradle-plugin](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt) | `52be641ed3b965a20c33bd43e0cbe9efd308bc64` | `.mpp` assembly, Android DEX generation, manifest metadata |
+| [changelog](https://github.com/MorpheApp/changelog/blob/caa1e931730f097bb6c4dee636b01c2c24ccd72d/lib/prepare.js) | `caa1e931730f097bb6c4dee636b01c2c24ccd72d` | `patches-bundle.json` generation |
+| [morphe-desktop](https://github.com/MorpheApp/morphe-desktop/blob/2f5ce39adc26d4b3e7debe44445eddcaf887bffa/src/main/kotlin/app/morphe/engine/PatchEngine.kt) | `2f5ce39adc26d4b3e7debe44445eddcaf887bffa` | Desktop Source, Patch loading, patch/sign/output orchestration |
+| [morphe-patcher](https://github.com/MorpheApp/morphe-patcher/blob/b69536fd33b69a1d1b2643068941f1052cf51708/src/main/kotlin/app/morphe/patcher/Patcher.kt) | `b69536fd33b69a1d1b2643068941f1052cf51708` | Patch model, dependency execution, resource/DEX mutation |
+| [morphe-library](https://github.com/MorpheApp/morphe-library/blob/a5b1fb512306d497cad8a13c0399a5fb28553522/src/commonMain/kotlin/app/morphe/library/installation/installer/AdbInstaller.kt) | `a5b1fb512306d497cad8a13c0399a5fb28553522` | Desktop CLI installation result boundary |
+| [morphe-patches-library](https://github.com/MorpheApp/morphe-patches-library/blob/9e555a2273533ef13e51db70a55d3fd544752756/patch-library/src/main/kotlin/app/morphe/util/PatchListGenerator.kt) | `9e555a2273533ef13e51db70a55d3fd544752756` | Shared Patch helpers and `patches-list.json` generation |
+| [ARSCLib](https://github.com/MorpheApp/ARSCLib/tree/d003b5ff1ca91fb8c5105619cf1108b450387061) | `d003b5ff1ca91fb8c5105619cf1108b450387061` | Supporting Android resource decode/encode API |
+| [smali](https://github.com/MorpheApp/smali/tree/b6365a84f40c8355af14004dcf7b8324ee050b9f) | `b6365a84f40c8355af14004dcf7b8324ee050b9f` | Supporting DEX model and assembly API |
+| [jadb](https://github.com/MorpheApp/jadb/tree/6fdaa5bec8369487e6c9d0460f02ac9970709d34) | `6fdaa5bec8369487e6c9d0460f02ac9970709d34` | Supporting ADB transport used by `morphe-library` |
 | [kiss-translator](https://github.com/fishjar/kiss-translator/tree/8e20013ab2426dc278c98c89f4d51601261b5e25) | `8e20013ab2426dc278c98c89f4d51601261b5e25` | Reference implementation for video summary, neighbor context, and bounded history |
 
 ## Verified findings
+
+### Morphe ecosystem lifecycle
+
+- The [Phase 1 ecosystem report](./morphe-ecosystem-architecture.md) inventories all 21 unarchived MorpheApp repositories at fixed revisions and classifies them as `Direct=8`, `Supporting=4`, and `Excluded=9` from source/config edges.
+- [`PatchesPlugin.kt`](https://github.com/MorpheApp/morphe-patches-gradle-plugin/blob/52be641ed3b965a20c33bd43e0cbe9efd308bc64/src/main/kotlin/app/morphe/patches/gradle/PatchesPlugin.kt) builds the `.mpp` executable bundle, while [`prepare.js`](https://github.com/MorpheApp/changelog/blob/caa1e931730f097bb6c4dee636b01c2c24ccd72d/lib/prepare.js) writes release discovery metadata.
+- Manager [`Session.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/patcher/Session.kt) and Desktop [`PatchEngine.kt`](https://github.com/MorpheApp/morphe-desktop/blob/2f5ce39adc26d4b3e7debe44445eddcaf887bffa/src/main/kotlin/app/morphe/engine/PatchEngine.kt) orchestrate Patch execution against a copied input APK; [`ApkUtils.applyTo`](https://github.com/MorpheApp/morphe-patcher/blob/b69536fd33b69a1d1b2643068941f1052cf51708/src/main/kotlin/app/morphe/patcher/apk/ApkUtils.kt) owns the primitive that writes resource and DEX changes into that copy.
+- Manager [`PatchBundleRepository.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/domain/repository/PatchBundleRepository.kt) and [`RemotePatchBundle.kt`](https://github.com/MorpheApp/morphe-manager/blob/a2c3d31bd7ab42e6bc4b9dd528ed856fc72fb948/app/src/main/java/app/morphe/manager/domain/bundles/RemotePatchBundle.kt) show why Patch Source exists: it separates versioned metadata and Patch Bundle download from the user-supplied APK and local patching operation.
 
 ### Patch Source template
 
