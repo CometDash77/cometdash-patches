@@ -30,6 +30,24 @@
 - Decision: Phase 1《Morphe 生态架构分析报告》may begin.
 - Boundary: This authorization does not permit Phase 2 or Patch implementation.
 
+### Phase 1 completion gate
+
+- Approved by: Project owner.
+- Approved at: `2026-07-19T12:28:51+08:00`（`Asia/Hong_Kong`）。
+- Accepted candidate: [`Morphe 生态架构分析报告`](./morphe-ecosystem-architecture.md) at `f34f8c827801dfeb3d1bd0c3493e5aaf8de6e6ef`.
+- Independent review: final [`PASS`](./2026-07-18-morphe-ecosystem-review.md#最终-verdict) at `aa6cec86a96c44bc232ef797d37d265568e7f129`.
+- Finding status: `MORPHE-P1-001..005` are `Resolved`; the two earlier `BLOCKED` records remain audit history, not current gate state.
+- Decision: Phase 1 is accepted and complete.
+
+### Phase 2 research authorization and fresh-window entrypoint
+
+- Authorized by: Project owner.
+- Authorized at: `2026-07-19T12:28:51+08:00`（`Asia/Hong_Kong`）。
+- Decision: A fresh-window Agent may begin Phase 2《官方 Voice Over Translation》research and planning with `mattpocock-skills:research`.
+- Required startup input: `AGENTS.md`, `CONTEXT-MAP.md`, [Phase 2 in the learning program](../specs/agent-learning-program.md#2-官方-voice-over-translation), this ledger, the accepted [Phase 1 report](./morphe-ecosystem-architecture.md), and the final [Phase 1 review](./2026-07-18-morphe-ecosystem-review.md#最终-verdict).
+- Context boundary: use the final Phase 1 artifacts and fixed sources as inputs; do not import prior chat reasoning by default. Read historical `BLOCKED` sections only for audit or regression analysis.
+- Scope boundary: authorization covers Phase 2 source research and planning only. It does not authorize Patch implementation, APK inspection, Phase 3 work, release, or an APK support claim.
+
 ## Fixed upstream revisions
 
 | Project | Revision | Evidence use |
